@@ -1,23 +1,98 @@
-<!--
-  EYE FREE MODEL 3D BY Oscar creativo by OSCAR CREATIVO is licensed under Creative Commons Attribution.
-  Juvenile Teratophoneus curriei byrankinstudio is licensed under Creative Commons Attribution.
--->
 <!DOCTYPE html>
-<html>
+<html lang="fr">
   <head>
-    <meta charset="utf-8" />
-    <title>A simple Three.JS App</title>
-    <link rel="stylesheet" href="css/style.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Visualisation du modèle 3D</title>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+      canvas {
+        display: block;
+      }
+    </style>
   </head>
   <body>
-    <header>
-      <h1>A simple three.js app</h1>
-    </header>
+    <h1>Visualisez votre modèle 3D</h1>
 
-    <main>
-      <div id="container3D"></div>
-    </main>
+    <!-- Canvas où sera rendu le modèle -->
+    <canvas class="webgl"></canvas>
 
-    <script type="module" src="js/main.js"></script>
+    <!-- Import de Three.js et GLTFLoader -->
+    <script type="module">
+      import * as THREE from 'https://cdn.skypack.dev/three@0.133.0/build/three.module.js';
+      import { GLTFLoader } from 'https://cdn.skypack.dev/three@0.133.0/examples/jsm/loaders/GLTFLoader.js';
+      import { OrbitControls } from 'https://cdn.skypack.dev/three@0.133.0/examples/jsm/controls/OrbitControls.js';
+
+      // Création de la scène, de la caméra et du rendu
+      const scene = new THREE.Scene();
+      let camera, renderer, controls;
+      
+      const canvas = document.querySelector('canvas.webgl');
+      
+      // Initialisation de la caméra
+      camera = new THREE.PerspectiveCamera(
+        45,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000
+      );
+      camera.position.set(0, 1, 3); // Position de la caméra
+
+      // Configuration du rendu
+      renderer = new THREE.WebGLRenderer({ canvas });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.domElement);
+
+      // Ajout d'une lumière à la scène
+      const ambientLight = new THREE.AmbientLight(0x404040, 1); // Lumière ambiante
+      scene.add(ambientLight);
+
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 1); // Lumière directionnelle
+      directionalLight.position.set(10, 10, 10).normalize();
+      scene.add(directionalLight);
+
+      // Ajouter les contrôles de caméra
+      controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.25;
+      controls.screenSpacePanning = false;
+
+      // Charger le modèle .glTF et les fichiers .bin associés
+      const loader = new GLTFLoader();
+      loader.load(
+        'testawa.gltf', // Chemin vers ton fichier GLTF
+        (gltf) => {
+          scene.add(gltf.scene); // Ajouter le modèle à la scène
+          render(); // Afficher la scène
+        },
+        undefined, // Fonction de progression (optionnelle)
+        (error) => {
+          console.error('Erreur de chargement du modèle GLTF:', error);
+        }
+      );
+
+      // Fonction d'animation et de rendu
+      function animate() {
+        requestAnimationFrame(animate);
+        controls.update(); // Mise à jour des contrôles de caméra
+        render();
+      }
+
+      function render() {
+        renderer.render(scene, camera);
+      }
+
+      animate();
+
+      // Ajuster la scène lorsque la fenêtre est redimensionnée
+      window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+    </script>
   </body>
 </html>
