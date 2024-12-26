@@ -1,8 +1,6 @@
-import * as THREE from "three";
-
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
+import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 // Canvas
 const canvas = document.querySelector("canvas.webgl");
@@ -10,75 +8,57 @@ const scene = new THREE.Scene();
 let renderer;
 let camera;
 
-init(); //our setup
-render(); //the update loop
+init(); // Initialisation
+render(); // Boucle de mise à jour
 
 function init() {
-  //setup the camera
+  // Setup de la caméra
   camera = new THREE.PerspectiveCamera(
     45,
     window.innerWidth / window.innerHeight,
     0.25,
     20
   );
-  camera.position.set(-1.8, 0.6, 2.7);
+  camera.position.set(0, 1, 3);
 
-  //load and create the environment
-  new RGBELoader()
-    .setDataType(THREE.UnsignedByteType)
-    .load(
-      "https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/textures/equirectangular/royal_esplanade_1k.hdr",
-      function (texture) {
-        const pmremGenerator = new THREE.PMREMGenerator(renderer);
-        pmremGenerator.compileEquirectangularShader();
-        const envMap = pmremGenerator.fromEquirectangular(texture).texture;
-
-        scene.background = envMap; //this loads the envMap for the background
-        scene.environment = envMap; //this loads the envMap for reflections and lighting
-
-        texture.dispose(); //we have envMap so we can erase the texture
-        pmremGenerator.dispose(); //we processed the image into envMap so we can stop this
-      }
-    );
-
-  // load the model
-  const loader = new GLTFLoader();
-  loader.load(
-    "https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/models/gltf/DamagedHelmet/glTF/DamagedHelmet.gltf",
-    function (gltf) {
-      scene.add(gltf.scene);
-      render(); //render the scene for the first time
-    }
-  );
-
-  //setup the renderer
+  // Setup du rendu
   renderer = new THREE.WebGLRenderer({ antialias: true, canvas: canvas });
-  renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.toneMapping = THREE.ACESFilmicToneMapping; //added contrast for filmic look
-  renderer.toneMappingExposure = 1;
-  renderer.outputEncoding = THREE.sRGBEncoding; //extended color space for the hdr
+  document.body.appendChild(renderer.domElement);
 
+  // Setup de la lumière
+  const ambientLight = new THREE.AmbientLight(0xFFFFFF, 1);
+  scene.add(ambientLight);
+  
+  const directionalLight = new THREE.DirectionalLight(0xFFFFFF, 1);
+  directionalLight.position.set(5, 5, 5).normalize();
+  scene.add(directionalLight);
+
+  // Charger le modèle GLB
+  const loader = new GLTFLoader();
+  loader.load('model.glb', function (gltf) {
+    scene.add(gltf.scene);
+    render(); // Rendu initial
+  }, undefined, function (error) {
+    console.error('Erreur lors du chargement du modèle GLB :', error);
+  });
+
+  // Controls
   const controls = new OrbitControls(camera, renderer.domElement);
-  controls.addEventListener("change", render); // use if there is no animation loop to render after any changes
-  controls.minDistance = 2;
-  controls.maxDistance = 10;
-  controls.target.set(0, 0, -0.2);
-  controls.update();
-
-  window.addEventListener("resize", onWindowResize);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.25;
+  controls.enableZoom = true;
+  
+  // Gérer la taille de la fenêtre
+  window.addEventListener('resize', onWindowResize);
 }
 
 function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
-
   renderer.setSize(window.innerWidth, window.innerHeight);
-
   render();
 }
-
-//
 
 function render() {
   renderer.render(scene, camera);
