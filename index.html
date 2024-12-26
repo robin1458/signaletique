@@ -3,23 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Visualiser le produit avec votre logo</title>
+  <title>Visualisation du Modèle 3D</title>
   <style>
     body { margin: 0; overflow: hidden; }
     canvas { display: block; }
   </style>
 </head>
 <body>
-  <h1>Veuillez télécharger votre logo</h1>
-  <input type="file" id="logoInput" accept="image/*">
+  <h1>Visualisez votre modèle 3D</h1>
   <div id="3d-container"></div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/loaders/GLTFLoader.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/controls/OrbitControls.js"></script>
 
   <script>
-    let scene, camera, renderer, model, logoTexture;
+    let scene, camera, renderer, model;
 
     // Initialisation de la scène Three.js
     function init() {
@@ -29,67 +27,48 @@
       renderer.setSize(window.innerWidth, window.innerHeight);
       document.getElementById('3d-container').appendChild(renderer.domElement);
 
-      // Lumière
-      const light = new THREE.PointLight(0xFFFFFF, 1, 100);
-      light.position.set(10, 10, 10);
+      // Ajouter une lumière directionnelle pour éclairer le modèle
+      const light = new THREE.DirectionalLight(0xFFFFFF, 1);
+      light.position.set(10, 10, 10); // Position de la lumière
       scene.add(light);
+
+      // Ajouter une lumière ambiante pour éviter le noir complet
+      const ambientLight = new THREE.AmbientLight(0x404040, 1); // Lumière ambiante
+      scene.add(ambientLight);
 
       // Charger le modèle 3D
       const loader = new THREE.GLTFLoader();
       loader.load('model.glb', function (gltf) {
         model = gltf.scene;
         scene.add(model);
-        camera.position.z = 5;
+
+        // Positionner le modèle et la caméra
+        model.scale.set(2, 2, 2);  // Ajuster la taille du modèle
+        camera.position.z = 5;     // Positionner la caméra pour voir le modèle
+
         animate();
       });
-
-      // Ajouter les contrôles OrbitControls
-      const controls = new THREE.OrbitControls(camera, renderer.domElement);
     }
 
-    // Fonction pour animer le modèle
+    // Fonction d'animation de la scène
     function animate() {
       requestAnimationFrame(animate);
-      model.rotation.x += 0.01;
-      model.rotation.y += 0.01;
+      if (model) {
+        model.rotation.x += 0.01;
+        model.rotation.y += 0.01;
+      }
       renderer.render(scene, camera);
     }
 
-    // Gérer le redimensionnement de la fenêtre
+    // Initialiser la scène et démarrer l'animation
+    init();
+
+    // Adapter le rendu quand la fenêtre est redimensionnée
     window.addEventListener('resize', function () {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
-
-    // Charger et appliquer le logo comme texture sur le modèle
-    document.getElementById('logoInput').addEventListener('change', function (event) {
-      const file = event.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          logoTexture = new THREE.TextureLoader().load(e.target.result, function () {
-            logoTexture.needsUpdate = true;
-          });
-          logoTexture.minFilter = THREE.LinearFilter;
-          logoTexture.magFilter = THREE.LinearFilter;
-          logoTexture.wrapS = THREE.RepeatWrapping;
-          logoTexture.wrapT = THREE.RepeatWrapping;
-
-          // Appliquer la texture sur un matériau du modèle
-          model.traverse(function (child) {
-            if (child.isMesh) {
-              child.material.map = logoTexture;
-              child.material.needsUpdate = true;
-            }
-          });
-        };
-        reader.readAsDataURL(file);
-      }
-    });
-
-    // Initialiser la scène
-    init();
   </script>
 </body>
 </html>
