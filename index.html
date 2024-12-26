@@ -13,8 +13,9 @@
   <h1>Visualisez votre modèle 3D</h1>
 
   <script type="module">
-    import * as THREE from 'https://cdn.skypack.dev/three@0.133.0/build/three.module.js';
-    import { GLTFLoader } from 'https://cdn.skypack.dev/three@0.133.0/examples/jsm/loaders/GLTFLoader.js';
+    // Utilisation de unpkg pour charger Three.js et GLTFLoader
+    import * as THREE from 'https://unpkg.com/three@0.133.0/build/three.module.js';
+    import { GLTFLoader } from 'https://unpkg.com/three@0.133.0/examples/jsm/loaders/GLTFLoader.js';
 
     let scene, camera, renderer, model;
 
