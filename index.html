@@ -3,50 +3,76 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Uploader une image</title>
+  <title>Visualiser le produit avec votre logo</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin-top: 50px;
-    }
-    #preview {
-      margin-top: 20px;
-      max-width: 100%;
-      max-height: 400px;
-      display: none; /* Cache l'image par défaut */
-    }
-    input[type="file"] {
-      margin-top: 20px;
-    }
+    body { margin: 0; overflow: hidden; }
+    canvas { display: block; }
   </style>
 </head>
 <body>
-  <h1>Veuillez insérer votre fichier image</h1>
-  
-  <!-- Formulaire d'upload -->
-  <input type="file" id="fileInput" accept="image/*">
-  
-  <!-- Zone d'aperçu de l'image -->
-  <img id="preview" src="" alt="Aperçu de l'image téléchargée">
-  
-  <script>
-    // Cibler l'élément d'upload et l'image d'aperçu
-    const fileInput = document.getElementById('fileInput');
-    const preview = document.getElementById('preview');
+  <h1>Veuillez télécharger votre logo</h1>
+  <input type="file" id="logoInput" accept="image/*">
+  <div id="3d-container"></div>
 
-    // Fonction pour afficher l'image téléchargée
-    fileInput.addEventListener('change', function(event) {
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/loaders/GLTFLoader.js"></script>
+
+  <script>
+    let scene, camera, renderer, model, logoTexture;
+
+    // Initialisation de la scène Three.js
+    function init() {
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      renderer = new THREE.WebGLRenderer();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.domElement);
+
+      // Lumière
+      const light = new THREE.PointLight(0xFFFFFF, 1, 100);
+      light.position.set(10, 10, 10);
+      scene.add(light);
+
+      // Charger le modèle 3D
+      const loader = new THREE.GLTFLoader();
+      loader.load('model.glb', function (gltf) {
+        model = gltf.scene;
+        scene.add(model);
+        camera.position.z = 5;
+        animate();
+      });
+    }
+
+    // Fonction pour animer le modèle
+    function animate() {
+      requestAnimationFrame(animate);
+      model.rotation.x += 0.01;
+      model.rotation.y += 0.01;
+      renderer.render(scene, camera);
+    }
+
+    // Charger et appliquer le logo comme texture sur le modèle
+    document.getElementById('logoInput').addEventListener('change', function (event) {
       const file = event.target.files[0];
       if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-          preview.src = e.target.result;
-          preview.style.display = 'block'; // Afficher l'image après chargement
+          logoTexture = new THREE.TextureLoader().load(e.target.result);
+
+          // Appliquer la texture sur un matériau du modèle (exemple sur un objet particulier)
+          model.traverse(function (child) {
+            if (child.isMesh) {
+              child.material.map = logoTexture; // Applique la texture sur tous les matériaux
+              child.material.needsUpdate = true;
+            }
+          });
         };
         reader.readAsDataURL(file);
       }
     });
+
+    // Initialiser la scène
+    init();
   </script>
 </body>
 </html>
