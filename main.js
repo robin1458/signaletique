@@ -27,7 +27,7 @@ function init() {
   new RGBELoader()
     .setDataType(THREE.UnsignedByteType)
     .load(
-      "https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/textures/equirectangular/royal_esplanade_1k.hdr",
+      "model.glb",
       function (texture) {
         const pmremGenerator = new THREE.PMREMGenerator(renderer);
         pmremGenerator.compileEquirectangularShader();
