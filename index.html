@@ -16,6 +16,7 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/loaders/GLTFLoader.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/controls/OrbitControls.js"></script>
 
   <script>
     let scene, camera, renderer, model, logoTexture;
@@ -41,6 +42,9 @@
         camera.position.z = 5;
         animate();
       });
+
+      // Ajouter les contrôles OrbitControls
+      const controls = new THREE.OrbitControls(camera, renderer.domElement);
     }
 
     // Fonction pour animer le modèle
@@ -51,18 +55,31 @@
       renderer.render(scene, camera);
     }
 
+    // Gérer le redimensionnement de la fenêtre
+    window.addEventListener('resize', function () {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
     // Charger et appliquer le logo comme texture sur le modèle
     document.getElementById('logoInput').addEventListener('change', function (event) {
       const file = event.target.files[0];
       if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-          logoTexture = new THREE.TextureLoader().load(e.target.result);
+          logoTexture = new THREE.TextureLoader().load(e.target.result, function () {
+            logoTexture.needsUpdate = true;
+          });
+          logoTexture.minFilter = THREE.LinearFilter;
+          logoTexture.magFilter = THREE.LinearFilter;
+          logoTexture.wrapS = THREE.RepeatWrapping;
+          logoTexture.wrapT = THREE.RepeatWrapping;
 
-          // Appliquer la texture sur un matériau du modèle (exemple sur un objet particulier)
+          // Appliquer la texture sur un matériau du modèle
           model.traverse(function (child) {
             if (child.isMesh) {
-              child.material.map = logoTexture; // Applique la texture sur tous les matériaux
+              child.material.map = logoTexture;
               child.material.needsUpdate = true;
             }
           });
