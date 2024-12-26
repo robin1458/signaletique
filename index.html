@@ -12,62 +12,51 @@
 <body>
   <h1>Visualisez votre modèle 3D</h1>
 
-  <!-- Importation de Three.js et GLTFLoader depuis Skypack -->
   <script type="module">
     import * as THREE from 'https://cdn.skypack.dev/three@0.133.0/build/three.module.js';
     import { GLTFLoader } from 'https://cdn.skypack.dev/three@0.133.0/examples/jsm/loaders/GLTFLoader.js';
 
     let scene, camera, renderer, model;
 
-    // Initialisation de la scène Three.js
     function init() {
-      // Scène
       scene = new THREE.Scene();
-
-      // Caméra
       camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-      
-      // Rendu
+
       renderer = new THREE.WebGLRenderer();
       renderer.setSize(window.innerWidth, window.innerHeight);
       document.body.appendChild(renderer.domElement);
 
-      // Ajouter des lumières
-      const ambientLight = new THREE.AmbientLight(0xFFFFFF, 1);  // Lumière ambiante
+      const ambientLight = new THREE.AmbientLight(0xFFFFFF, 1);
       scene.add(ambientLight);
 
-      const directionalLight = new THREE.DirectionalLight(0xFFFFFF, 1);  // Lumière directionnelle
+      const directionalLight = new THREE.DirectionalLight(0xFFFFFF, 1);
       directionalLight.position.set(10, 10, 10).normalize();
       scene.add(directionalLight);
 
-      const pointLight = new THREE.PointLight(0xFFFFFF, 1, 100);  // Lumière ponctuelle
+      const pointLight = new THREE.PointLight(0xFFFFFF, 1, 100);
       pointLight.position.set(10, 10, 10);
       scene.add(pointLight);
 
-      // Charger le modèle GLB
       const loader = new GLTFLoader();
       loader.load('model.glb', function (gltf) {
         model = gltf.scene;
         scene.add(model);
-        camera.position.z = 5;  // Ajuster la position de la caméra
-        animate();  // Démarrer l'animation
+        camera.position.z = 5;
+        animate();
+      }, undefined, function (error) {
+        console.error('Error loading GLB model:', error);
       });
     }
 
-    // Fonction pour animer la scène
     function animate() {
       requestAnimationFrame(animate);
-
-      // Rotation du modèle pour animation
       if (model) {
         model.rotation.x += 0.01;
         model.rotation.y += 0.01;
       }
-
       renderer.render(scene, camera);
     }
 
-    // Initialiser la scène
     init();
   </script>
 </body>
