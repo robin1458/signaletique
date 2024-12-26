@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Visualisation du Modèle 3D</title>
+  <title>Visualisation du modèle 3D</title>
   <style>
     body { margin: 0; overflow: hidden; }
     canvas { display: block; }
@@ -11,65 +11,56 @@
 </head>
 <body>
   <h1>Visualisez votre modèle 3D</h1>
-  <div id="3d-container"></div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-
 
   <script>
     let scene, camera, renderer, model;
 
     // Initialisation de la scène Three.js
     function init() {
+      // Scène
       scene = new THREE.Scene();
+
+      // Caméra
       camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      
+      // Rendu
       renderer = new THREE.WebGLRenderer();
       renderer.setSize(window.innerWidth, window.innerHeight);
-      document.getElementById('3d-container').appendChild(renderer.domElement);
+      document.body.appendChild(renderer.domElement);
 
-      // Ajouter une lumière directionnelle pour éclairer le modèle
-      const light = new THREE.DirectionalLight(0xFFFFFF, 1);
-      light.position.set(10, 10, 10); // Position de la lumière
+      // Lumière
+      const light = new THREE.PointLight(0xFFFFFF, 1, 100);
+      light.position.set(10, 10, 10);
       scene.add(light);
 
-      // Ajouter une lumière ambiante pour éviter le noir complet
-      const ambientLight = new THREE.AmbientLight(0x404040, 1); // Lumière ambiante
-      scene.add(ambientLight);
-
-      // Charger le modèle 3D
+      // Charger le modèle GLB
       const loader = new THREE.GLTFLoader();
       loader.load('model.glb', function (gltf) {
         model = gltf.scene;
         scene.add(model);
-
-        // Positionner le modèle et la caméra
-        model.scale.set(2, 2, 2);  // Ajuster la taille du modèle
-        camera.position.z = 5;     // Positionner la caméra pour voir le modèle
-
-        animate();
+        camera.position.z = 5; // Ajuste la distance de la caméra
+        animate(); // Démarre l'animation
       });
     }
 
-    // Fonction d'animation de la scène
+    // Fonction pour animer la scène
     function animate() {
       requestAnimationFrame(animate);
+
+      // Animation simple : rotation du modèle
       if (model) {
         model.rotation.x += 0.01;
         model.rotation.y += 0.01;
       }
+
       renderer.render(scene, camera);
     }
 
-    // Initialiser la scène et démarrer l'animation
+    // Initialiser la scène
     init();
-
-    // Adapter le rendu quand la fenêtre est redimensionnée
-    window.addEventListener('resize', function () {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    });
   </script>
 </body>
 </html>
