@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Visualiseur GLB avec Film Signalétique</title>
   <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
     body {
       margin: 0;
@@ -101,16 +102,18 @@
   <!-- Scène A-Frame -->
   <a-scene>
     <!-- Lumières -->
-    <a-entity light="type: ambient; color: #FFF; intensity: 0.2"></a-entity>
-    <a-entity light="type: directional; intensity: 0.2" position="1 1 1"></a-entity>
+    <a-entity light="type: ambient; color: #FFF; intensity: 1"></a-entity>
+    <a-entity light="type: directional; intensity: 0.5" position="1 1 1"></a-entity>
+    <!-- Ajout d'une lumière pointée sur le modèle (spécifique pour les matériaux en verre) -->
+    <a-entity light="type: spot; color: #ffffff; intensity: 2; position: 2 5 -2" target="#model"></a-entity>
 
     <!-- Charger et afficher le modèle GLB -->
     <a-entity 
       id="model" 
       gltf-model="url(testawa.glb)" 
-      position="0 2 0" 
-      scale="6 6 6" 
-      rotation="0 0 0">
+      position="0 0 -2" 
+      scale="1 1 1" 
+      rotation="0 45 0">
     </a-entity>
 
     <!-- Caméra avec contrôle utilisateur -->
@@ -128,7 +131,7 @@
     const widthRange = document.getElementById('widthRange');
     const heightRange = document.getElementById('heightRange');
     
-    // Variables pour la taille et l'orientation
+    // Variables pour la texture et ses propriétés
     let textureUrl = '';
     let textureWidth = 1;
     let textureHeight = 1;
@@ -146,14 +149,16 @@
           if (model) {
             model.traverse((child) => {
               if (child.isMesh) {
-                child.material.map = new THREE.TextureLoader().load(textureUrl);
-                child.material.needsUpdate = true;
-                // Appliquer les dimensions et orientation
-                child.scale.set(textureWidth, textureHeight, 1);
-                if (textureOrientation === 'vertical') {
-                  child.rotation.set(0, Math.PI / 2, 0);
-                } else {
-                  child.rotation.set(0, 0, 0);
+                // Appliquer la texture uniquement au corps du luminaire
+                if (child.name === 'corps') {
+                  child.material.map = new THREE.TextureLoader().load(textureUrl);
+                  child.material.needsUpdate = true;
+                  child.scale.set(textureWidth, textureHeight, 1);
+                  if (textureOrientation === 'vertical') {
+                    child.rotation.set(0, Math.PI / 2, 0);
+                  } else {
+                    child.rotation.set(0, 0, 0);
+                  }
                 }
               }
             });
@@ -186,17 +191,12 @@
         if (model) {
           model.traverse((child) => {
             if (child.isMesh) {
-              child.scale.set(textureWidth, textureHeight, 1);
-              if (textureOrientation === 'vertical') {
-                child.rotation.set(0, Math.PI / 2, 0);
-              } else {
-                child.rotation.set(0, 0, 0);
+              if (child.name === 'corps') {
+                child.scale.set(textureWidth, textureHeight, 1);
+                if (textureOrientation === 'vertical') {
+                  child.rotation.set(0, Math.PI / 2, 0);
+                } else {
+                  child.rotation.set(0, 0, 0);
+                }
               }
             }
-          });
-        }
-      }
-    }
-  </script>
-</body>
-</html>
