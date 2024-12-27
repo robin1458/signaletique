@@ -49,10 +49,6 @@
         <a-entity camera look-controls position="0 1.6 0" id="camera"></a-entity>
       </a-entity>
 
-      <!-- Contrôle de la molette pour zoomer -->
-      <a-entity id="zoom-controls" position="0 1.6 0" cursor="fuse: false">
-        <a-plane position="0 0 -2" width="0.2" height="0.2" color="#333" opacity="0.5"></a-plane>
-      </a-entity>
     </a-scene>
 
     <script>
@@ -85,15 +81,20 @@
       // Zoom sur la molette de la souris
       const camera = document.querySelector('#camera');
       const zoomSpeed = 0.1; // Vitesse de zoom
-      let cameraPositionZ = -5; // Position de la caméra
+      let cameraPositionZ = -5; // Position initiale de la caméra
 
       // Event pour gérer le zoom avec la molette
       window.addEventListener('wheel', (event) => {
+        // Si la molette est en bas, on éloigne la caméra, sinon on la rapproche
         if (event.deltaY > 0) {
           cameraPositionZ += zoomSpeed; // Zoom vers l'extérieur
         } else {
           cameraPositionZ -= zoomSpeed; // Zoom vers l'intérieur
         }
+
+        // Limiter le zoom pour que la caméra ne sorte pas trop loin
+        cameraPositionZ = Math.min(Math.max(cameraPositionZ, -10), -1);  // Empêche la caméra de trop s'éloigner ou de se rapprocher
+
         camera.setAttribute('position', `0 1.6 ${cameraPositionZ}`);
       });
     </script>
