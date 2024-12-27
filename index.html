@@ -1,25 +1,81 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>Visualiseur GLB</title>
-    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-  </head>
-  <body>
-    <a-scene>
-      <!-- Lumière pour éclairer le modèle -->
-      <a-entity light="type: ambient; color: #FFF; intensity: 1"></a-entity>
-      <a-entity light="type: directional; intensity: 0.5" position="1 1 1"></a-entity>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GLTF Viewer with Light Controls</title>
+  <style>
+    body { margin: 0; }
+    canvas { display: block; }
+    .controls {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 10px;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="controls">
+    <label for="lightIntensity">Light Intensity</label>
+    <input id="lightIntensity" type="range" min="0" max="10" step="0.1" value="1">
+    <br>
+    <label for="lightColor">Light Color</label>
+    <input id="lightColor" type="color" value="#ffffff">
+  </div>
+  <script type="module">
+    import * as THREE from "https://cdn.skypack.dev/three@0.133.0";
+    import { GLTFLoader } from "https://cdn.skypack.dev/three@0.133.0/examples/jsm/loaders/GLTFLoader.js";
 
-      <!-- Charger et afficher le modèle GLB -->
-      <a-entity 
-        gltf-model="testawa.glb" 
-        position="0 0 -5" 
-        scale="1 1 1" 
-        rotation="0 45 0">
-      </a-entity>
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 2, 5);
 
-      <!-- Caméra avec contrôle utilisateur -->
-      <a-entity camera look-controls position="0 1.6 0"></a-entity>
-    </a-scene>
-  </body>
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // Add light
+    const light = new THREE.DirectionalLight(0xffffff, 1);
+    light.position.set(5, 5, 5);
+    scene.add(light);
+
+    // Load model
+    const loader = new GLTFLoader();
+    loader.load('testawa.glb', (gltf) => {
+      scene.add(gltf.scene);
+      animate();
+    }, undefined, (error) => {
+      console.error('Error loading model:', error);
+    });
+
+    // Light controls
+    const lightIntensitySlider = document.getElementById('lightIntensity');
+    const lightColorPicker = document.getElementById('lightColor');
+
+    lightIntensitySlider.addEventListener('input', () => {
+      light.intensity = parseFloat(lightIntensitySlider.value);
+    });
+
+    lightColorPicker.addEventListener('input', () => {
+      light.color.set(lightColorPicker.value);
+    });
+
+    // Handle resizing
+    window.addEventListener('resize', () => {
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+    });
+
+    // Render loop
+    function animate() {
+      requestAnimationFrame(animate);
+      renderer.render(scene, camera);
+    }
+  </script>
+</body>
 </html>
+
