@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Visualiseur GLB</title>
+    <title>Visualiseur GLB avec Zoom</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <style>
       body {
@@ -45,7 +45,14 @@
       </a-entity>
 
       <!-- Caméra avec contrôle utilisateur -->
-      <a-entity camera look-controls position="0 1.6 0"></a-entity>
+      <a-entity id="cameraRig" position="0 0 0">
+        <a-entity camera look-controls position="0 1.6 0" id="camera"></a-entity>
+      </a-entity>
+
+      <!-- Contrôle de la molette pour zoomer -->
+      <a-entity id="zoom-controls" position="0 1.6 0" cursor="fuse: false">
+        <a-plane position="0 0 -2" width="0.2" height="0.2" color="#333" opacity="0.5"></a-plane>
+      </a-entity>
     </a-scene>
 
     <script>
@@ -73,6 +80,21 @@
             }
           });
         }
+      });
+
+      // Zoom sur la molette de la souris
+      const camera = document.querySelector('#camera');
+      const zoomSpeed = 0.1; // Vitesse de zoom
+      let cameraPositionZ = -5; // Position de la caméra
+
+      // Event pour gérer le zoom avec la molette
+      window.addEventListener('wheel', (event) => {
+        if (event.deltaY > 0) {
+          cameraPositionZ += zoomSpeed; // Zoom vers l'extérieur
+        } else {
+          cameraPositionZ -= zoomSpeed; // Zoom vers l'intérieur
+        }
+        camera.setAttribute('position', `0 1.6 ${cameraPositionZ}`);
       });
     </script>
   </body>
