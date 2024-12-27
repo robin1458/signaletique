@@ -1,102 +1,202 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>Visualiseur GLB avec Zoom</title>
-    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-    <style>
-      body {
-        margin: 0;
-        overflow: hidden;
-      }
-      .controls {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        background: rgba(128, 128, 128, 1);
-        padding: 10px;
-        border-radius: 5px;
-        z-index: 10;
-      }
-      input[type="file"] {
-        margin-top: 10px;
-      }
-    </style>
-  </head>
-  <body>
-    <!-- Interface de contrôle -->
-    <div class="controls">
-      <label for="textureInput">Importer texture :</label>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visualiseur GLB avec Film Signalétique</title>
+  <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+    }
+
+    .controls {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(128, 128, 128, 0.8);
+      padding: 20px;
+      border-radius: 5px;
+      z-index: 10;
+      width: 250px;
+    }
+
+    h2 {
+      font-size: 20px;
+      color: #fff;
+      text-align: center;
+    }
+
+    .file-upload, .orientation, .dimensions {
+      margin-top: 15px;
+    }
+
+    label {
+      color: #fff;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    input[type="file"] {
+      width: 100%;
+      padding: 5px;
+      border-radius: 3px;
+      border: 1px solid #ccc;
+      cursor: pointer;
+    }
+
+    select, input[type="range"] {
+      width: 100%;
+      margin-top: 5px;
+      padding: 5px;
+      border-radius: 3px;
+    }
+
+    .range-labels {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .range-labels span {
+      color: #fff;
+    }
+
+  </style>
+</head>
+<body>
+  <!-- Interface de contrôle -->
+  <div class="controls">
+    <h2>Film Signalétique</h2>
+    <div class="file-upload">
+      <label for="textureInput">Importer votre film :</label>
       <input id="textureInput" type="file" accept="image/*">
     </div>
 
-    <!-- Scène A-Frame -->
-    <a-scene>
-      <!-- Lumière pour éclairer le modèle -->
-      <a-entity light="type: ambient; color: #FFF; intensity: 1"></a-entity>
-      <a-entity light="type: directional; intensity: 0.5" position="1 1 1"></a-entity>
+    <div class="orientation">
+      <label for="orientationSelect">Orientation :</label>
+      <select id="orientationSelect">
+        <option value="horizontal">Horizontal</option>
+        <option value="vertical">Vertical</option>
+      </select>
+    </div>
 
-      <!-- Charger et afficher le modèle GLB -->
-      <a-entity 
-        id="model" 
-        gltf-model="url(testawa.glb)" 
-        position="0 0 -5" 
-        scale="1 1 1" 
-        rotation="0 45 0">
-      </a-entity>
+    <div class="dimensions">
+      <label for="widthRange">Largeur :</label>
+      <input id="widthRange" type="range" min="0.1" max="5" step="0.1" value="1">
+      <div class="range-labels">
+        <span>0.1</span><span>5</span>
+      </div>
 
-      <!-- Caméra avec contrôle utilisateur -->
-      <a-entity id="cameraRig" position="0 0 0">
-        <a-entity camera look-controls position="0 1.6 0" id="camera"></a-entity>
-      </a-entity>
+      <label for="heightRange">Hauteur :</label>
+      <input id="heightRange" type="range" min="0.1" max="5" step="0.1" value="1">
+      <div class="range-labels">
+        <span>0.1</span><span>5</span>
+      </div>
+    </div>
+  </div>
 
-    </a-scene>
+  <!-- Scène A-Frame -->
+  <a-scene>
+    <!-- Lumières -->
+    <a-entity light="type: ambient; color: #FFF; intensity: 1"></a-entity>
+    <a-entity light="type: directional; intensity: 0.5" position="1 1 1"></a-entity>
 
-    <script>
-      // Sélection de l'élément du modèle
-      const modelEntity = document.querySelector('#model');
-      const textureInput = document.getElementById('textureInput');
-      
-      // Gestion de l'événement de chargement de texture
-      textureInput.addEventListener('change', (event) => {
-        const file = event.target.files[0];
-        if (file) {
-          const url = URL.createObjectURL(file);
-          
-          // Appliquer la texture sur le modèle
-          modelEntity.addEventListener('loaded', () => {
-            const model = modelEntity.getObject3D('mesh');  // Récupérer le modèle 3D
-            if (model) {
-              // Appliquer la texture sur tous les matériaux du modèle
-              model.traverse((child) => {
-                if (child.isMesh) {
-                  child.material.map = new THREE.TextureLoader().load(url);
-                  child.material.needsUpdate = true; // Forcer la mise à jour du matériau
+    <!-- Charger et afficher le modèle GLB -->
+    <a-entity 
+      id="model" 
+      gltf-model="url(testawa.glb)" 
+      position="0 0 -5" 
+      scale="1 1 1" 
+      rotation="0 45 0">
+    </a-entity>
+
+    <!-- Caméra avec contrôle utilisateur -->
+    <a-entity id="cameraRig" position="0 0 0">
+      <a-entity camera look-controls position="0 1.6 0" id="camera"></a-entity>
+    </a-entity>
+
+  </a-scene>
+
+  <script>
+    // Sélection des éléments
+    const modelEntity = document.querySelector('#model');
+    const textureInput = document.getElementById('textureInput');
+    const orientationSelect = document.getElementById('orientationSelect');
+    const widthRange = document.getElementById('widthRange');
+    const heightRange = document.getElementById('heightRange');
+    
+    // Variables pour la taille et l'orientation
+    let textureUrl = '';
+    let textureWidth = 1;
+    let textureHeight = 1;
+    let textureOrientation = 'horizontal';
+
+    // Appliquer la texture et ajuster selon l'orientation et les dimensions
+    textureInput.addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        textureUrl = URL.createObjectURL(file);
+
+        // Appliquer la texture sur le modèle
+        modelEntity.addEventListener('loaded', () => {
+          const model = modelEntity.getObject3D('mesh');
+          if (model) {
+            model.traverse((child) => {
+              if (child.isMesh) {
+                child.material.map = new THREE.TextureLoader().load(textureUrl);
+                child.material.needsUpdate = true;
+                // Appliquer les dimensions et orientation
+                child.scale.set(textureWidth, textureHeight, 1);
+                if (textureOrientation === 'vertical') {
+                  child.rotation.set(0, Math.PI / 2, 0);
+                } else {
+                  child.rotation.set(0, 0, 0);
                 }
-              });
+              }
+            });
+          }
+        });
+      }
+    });
+
+    // Mettre à jour la largeur et la hauteur de la texture
+    widthRange.addEventListener('input', () => {
+      textureWidth = parseFloat(widthRange.value);
+      updateTextureDimensions();
+    });
+
+    heightRange.addEventListener('input', () => {
+      textureHeight = parseFloat(heightRange.value);
+      updateTextureDimensions();
+    });
+
+    // Mettre à jour l'orientation
+    orientationSelect.addEventListener('change', () => {
+      textureOrientation = orientationSelect.value;
+      updateTextureDimensions();
+    });
+
+    // Fonction pour mettre à jour les dimensions et l'orientation du modèle
+    function updateTextureDimensions() {
+      if (modelEntity) {
+        const model = modelEntity.getObject3D('mesh');
+        if (model) {
+          model.traverse((child) => {
+            if (child.isMesh) {
+              child.scale.set(textureWidth, textureHeight, 1);
+              if (textureOrientation === 'vertical') {
+                child.rotation.set(0, Math.PI / 2, 0);
+              } else {
+                child.rotation.set(0, 0, 0);
+              }
             }
           });
         }
-      });
-
-      // Zoom sur la molette de la souris
-      const camera = document.querySelector('#camera');
-      const zoomSpeed = 0.1; // Vitesse de zoom
-      let cameraPositionZ = -5; // Position initiale de la caméra
-
-      // Event pour gérer le zoom avec la molette
-      window.addEventListener('wheel', (event) => {
-        // Si la molette est en bas, on éloigne la caméra, sinon on la rapproche
-        if (event.deltaY > 0) {
-          cameraPositionZ += zoomSpeed; // Zoom vers l'extérieur
-        } else {
-          cameraPositionZ -= zoomSpeed; // Zoom vers l'intérieur
-        }
-
-        // Limiter le zoom pour que la caméra ne sorte pas trop loin
-        cameraPositionZ = Math.min(Math.max(cameraPositionZ, -10), -1);  // Empêche la caméra de trop s'éloigner ou de se rapprocher
-
-        camera.setAttribute('position', `0 1.6 ${cameraPositionZ}`);
-      });
-    </script>
-  </body>
+      }
+    }
+  </script>
+</body>
 </html>
