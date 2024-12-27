@@ -60,7 +60,18 @@
           const url = URL.createObjectURL(file);
           
           // Appliquer la texture sur le modèle
-          modelEntity.setAttribute('material', 'src', url);
+          modelEntity.addEventListener('loaded', () => {
+            const model = modelEntity.getObject3D('mesh');  // Récupérer le modèle 3D
+            if (model) {
+              // Appliquer la texture sur tous les matériaux du modèle
+              model.traverse((child) => {
+                if (child.isMesh) {
+                  child.material.map = new THREE.TextureLoader().load(url);
+                  child.material.needsUpdate = true; // Forcer la mise à jour du matériau
+                }
+              });
+            }
+          });
         }
       });
     </script>
