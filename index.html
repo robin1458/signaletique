@@ -3,15 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GLTF Viewer with Light Controls</title>
+  <title>GLTF Viewer</title>
   <style>
-    body { margin: 0; overflow: hidden; }
-    canvas { display: block; }
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: #d3d3d3; /* Fond gris clair */
+    }
+    canvas {
+      display: block;
+    }
     .controls {
       position: absolute;
       top: 10px;
       left: 10px;
-      background: rgba(255, 255, 255, 0.8);
+      background: rgba(255, 255, 255, 0.9);
       padding: 10px;
       border-radius: 5px;
       z-index: 10;
@@ -20,11 +26,8 @@
 </head>
 <body>
   <div class="controls">
-    <label for="lightIntensity">Light Intensity</label>
-    <input id="lightIntensity" type="range" min="0" max="10" step="0.1" value="1">
-    <br>
-    <label for="lightColor">Light Color</label>
-    <input id="lightColor" type="color" value="#ffffff">
+    <label for="textureInput">Importer texture :</label>
+    <input id="textureInput" type="file" accept="image/*">
   </div>
   <script type="module">
     import * as THREE from "https://cdn.skypack.dev/three@0.133.0";
@@ -46,26 +49,37 @@
 
     // Load the model
     const loader = new GLTFLoader();
+    let model; // Variable pour stocker le modèle
     loader.load(
       'testawa.glb',
       (gltf) => {
-        scene.add(gltf.scene);
+        model = gltf.scene;
+        scene.add(model);
         animate();
       },
       undefined,
-      (error) => console.error('Error loading model:', error)
+      (error) => console.error('Erreur lors du chargement du modèle :', error)
     );
 
-    // Light controls
-    const lightIntensitySlider = document.getElementById('lightIntensity');
-    const lightColorPicker = document.getElementById('lightColor');
+    // Handle texture upload
+    const textureInput = document.getElementById('textureInput');
+    const textureLoader = new THREE.TextureLoader();
 
-    lightIntensitySlider.addEventListener('input', () => {
-      light.intensity = parseFloat(lightIntensitySlider.value);
-    });
-
-    lightColorPicker.addEventListener('input', () => {
-      light.color.set(lightColorPicker.value);
+    textureInput.addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const url = URL.createObjectURL(file);
+        textureLoader.load(url, (texture) => {
+          if (model) {
+            model.traverse((child) => {
+              if (child.isMesh) {
+                child.material.map = texture; // Applique la texture au matériau
+                child.material.needsUpdate = true; // Met à jour le rendu
+              }
+            });
+          }
+        });
+      }
     });
 
     // Resize handler
