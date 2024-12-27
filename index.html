@@ -145,7 +145,7 @@
           const model = modelEntity.getObject3D('mesh');
           if (model) {
             model.traverse((child) => {
-              if (child.isMesh) {
+              if (child.isMesh && child.name === "44854-CORP PO 70-65-746 CL-1 - Pièce") {
                 child.material.map = new THREE.TextureLoader().load(textureUrl);
                 child.material.needsUpdate = true;
                 // Appliquer les dimensions et orientation
