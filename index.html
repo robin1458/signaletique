@@ -3,33 +3,8 @@
   <head>
     <title>Visualiseur GLB</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-    <style>
-      body {
-        margin: 0;
-        overflow: hidden;
-      }
-      .controls {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        background: rgba(255, 255, 255, 0.8);
-        padding: 10px;
-        border-radius: 5px;
-        z-index: 10;
-      }
-      input[type="file"] {
-        margin-top: 10px;
-      }
-    </style>
   </head>
   <body>
-    <!-- Interface de contrôle -->
-    <div class="controls">
-      <label for="textureInput">Importer texture :</label>
-      <input id="textureInput" type="file" accept="image/*">
-    </div>
-
-    <!-- Scène A-Frame -->
     <a-scene>
       <!-- Lumière pour éclairer le modèle -->
       <a-entity light="type: ambient; color: #FFF; intensity: 1"></a-entity>
@@ -37,8 +12,7 @@
 
       <!-- Charger et afficher le modèle GLB -->
       <a-entity 
-        id="model" 
-        gltf-model="url(testawa.glb)" 
+        gltf-model="testawa.glb" 
         position="0 0 -5" 
         scale="1 1 1" 
         rotation="0 45 0">
@@ -47,22 +21,5 @@
       <!-- Caméra avec contrôle utilisateur -->
       <a-entity camera look-controls position="0 1.6 0"></a-entity>
     </a-scene>
-
-    <script>
-      // Sélection de l'élément du modèle
-      const modelEntity = document.querySelector('#model');
-      const textureInput = document.getElementById('textureInput');
-      
-      // Gestion de l'événement de chargement de texture
-      textureInput.addEventListener('change', (event) => {
-        const file = event.target.files[0];
-        if (file) {
-          const url = URL.createObjectURL(file);
-          
-          // Appliquer la texture sur le modèle
-          modelEntity.setAttribute('material', 'src', url);
-        }
-      });
-    </script>
   </body>
 </html>
