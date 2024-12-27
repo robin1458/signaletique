@@ -33,14 +33,19 @@
     import * as THREE from "https://cdn.skypack.dev/three@0.133.0";
     import { GLTFLoader } from "https://cdn.skypack.dev/three@0.133.0/examples/jsm/loaders/GLTFLoader.js";
 
-    // Scene setup
+    // Canvas
+    const canvas = document.createElement('canvas');
+    document.body.appendChild(canvas);
+
+    // Renderer
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+
+    // Scene and Camera
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.set(0, 2, 5);
-
-    const renderer = new THREE.WebGLRenderer();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
 
     // Lighting
     const light = new THREE.DirectionalLight(0xffffff, 1);
@@ -49,7 +54,7 @@
 
     // Load the model
     const loader = new GLTFLoader();
-    let model; // Variable pour stocker le modèle
+    let model;
     loader.load(
       'testawa.glb',
       (gltf) => {
@@ -61,7 +66,7 @@
       (error) => console.error('Erreur lors du chargement du modèle :', error)
     );
 
-    // Handle texture upload
+    // Texture handling
     const textureInput = document.getElementById('textureInput');
     const textureLoader = new THREE.TextureLoader();
 
@@ -73,8 +78,8 @@
           if (model) {
             model.traverse((child) => {
               if (child.isMesh) {
-                child.material.map = texture; // Applique la texture au matériau
-                child.material.needsUpdate = true; // Met à jour le rendu
+                child.material.map = texture;
+                child.material.needsUpdate = true;
               }
             });
           }
