@@ -70,7 +70,7 @@
       background: #45a049;
     }
 
-    input[type="range"] {
+    input[type="range"], input[type="number"] {
       width: 100%;
       margin: 8px 0;
     }
@@ -116,11 +116,11 @@
       <input id="textureInput" type="file" accept="image/*">
       
       <label>Répétition X:</label>
-      <input id="repeatX" type="range" min="0.01" max="10" step="0.01" value="1">
+      <input id="repeatX" type="number" min="1" max="10" step="1" value="1">
       <div class="value-display">Valeur: <span id="repeatXValue">1</span></div>
 
       <label>Répétition Y:</label>
-      <input id="repeatY" type="range" min="0.01" max="10" step="0.01" value="1">
+      <input id="repeatY" type="number" min="1" max="10" step="1" value="1">
       <div class="value-display">Valeur: <span id="repeatYValue">1</span></div>
 
       <label>Rotation (degrés):</label>
@@ -305,8 +305,9 @@
     // Mise à jour des paramètres de texture
     function updateTextureSettings() {
       if (currentTexture) {
+        // Ajuster la répétition en fonction du nombre de fois désiré
         currentTexture.repeat.set(
-          parseFloat(repeatX.value),
+          parseFloat(repeatX.value), 
           parseFloat(repeatY.value)
         );
         currentTexture.rotation = parseFloat(rotation.value) * Math.PI / 180;
@@ -326,8 +327,9 @@
                 const originalUVArray = originalUVArrays.get(node.name) || uvArray;
                 
                 for (let i = 0; i < uvArray.length; i += 2) {
-                  uvArray[i] = originalUVArray[i] * scaleX;
-                  uvArray[i + 1] = originalUVArray[i + 1] * scaleY;
+                  // L'échelle UV modifie ici la taille de chaque répétition de la texture
+                  uvArray[i] = originalUVArray[i] / parseFloat(repeatX.value) * scaleX;
+                  uvArray[i + 1] = originalUVArray[i + 1] / parseFloat(repeatY.value) * scaleY;
                 }
                 node.geometry.attributes.uv.needsUpdate = true;
               }
