@@ -217,7 +217,7 @@
     const scaleUVYValue = document.getElementById('scaleUVYValue');
 
     let currentTexture = null;
-    let selectedMesh = null;
+    let originalUVArrays = new Map(); // Pour stocker les UV originaux
 
     // Chargement du modèle
     modelInput.addEventListener('change', (event) => {
@@ -225,6 +225,9 @@
       if (file) {
         const modelUrl = URL.createObjectURL(file);
         modelEntity.setAttribute('gltf-model', modelUrl);
+
+        // Réinitialiser les UV originaux
+        originalUVArrays.clear();
 
         // Mettre à jour la liste des meshes après le chargement
         modelEntity.addEventListener('model-loaded', updateMeshList);
@@ -256,6 +259,10 @@
             option.value = node.name;
             option.textContent = node.name;
             meshSelect.appendChild(option);
+            // Stocker les UV originaux
+            if (node.geometry.attributes.uv) {
+              originalUVArrays.set(node.name, node.geometry.attributes.uv.array.slice(0));
+            }
           }
         });
       }
@@ -290,7 +297,7 @@
           currentTexture.wrapS = THREE.RepeatWrapping;
           currentTexture.wrapT = THREE.RepeatWrapping;
           updateTextureSettings();
-          applyTexture(); // Assurez-vous que applyTexture est appelée ici
+          applyTexture();
         });
       }
     });
@@ -316,9 +323,11 @@
               const scaleY = parseFloat(scaleUVY.value);
               if (node.geometry.attributes.uv) {
                 const uvArray = node.geometry.attributes.uv.array;
+                const originalUVArray = originalUVArrays.get(node.name) || uvArray;
+                
                 for (let i = 0; i < uvArray.length; i += 2) {
-                  uvArray[i] *= scaleX;   // Scale UV X
-                  uvArray[i + 1] *= scaleY; // Scale UV Y
+                  uvArray[i] = originalUVArray[i] * scaleX;
+                  uvArray[i + 1] = originalUVArray[i + 1] * scaleY;
                 }
                 node.geometry.attributes.uv.needsUpdate = true;
               }
