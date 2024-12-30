@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Visualiseur GLB avec Contrôles Texture</title>
+  <title>Visualiseur GLB avec Texture</title>
   <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/110/three.min.js"></script>
   <style>
     body {
       margin: 0;
@@ -51,12 +50,13 @@
       margin-bottom: 8px;
     }
 
-    input[type="range"], input[type="file"], select, button {
+    input[type="file"], select, button {
       width: 100%;
       padding: 8px;
       margin-bottom: 10px;
       border-radius: 4px;
       border: 1px solid #ccc;
+      background: white;
     }
 
     button {
@@ -68,6 +68,11 @@
 
     button:hover {
       background: #45a049;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      margin: 8px 0;
     }
 
     .value-display {
@@ -94,78 +99,151 @@
       <input id="modelInput" type="file" accept=".glb">
     </div>
 
-    <!-- Contrôles de texture -->
+    <!-- Sélection et debug des meshes -->
     <div class="control-section">
-      <h3>Contrôles Texture</h3>
+      <h3>Meshes</h3>
+      <button id="showMeshNames">Afficher les noms des meshes</button>
+      <select id="meshSelect">
+        <option value="">Sélectionnez un mesh</option>
+      </select>
+      <div id="debug"></div>
+    </div>
+
+    <!-- Texture -->
+    <div class="control-section">
+      <h3>Texture</h3>
       <label for="textureInput">Importer une texture :</label>
       <input id="textureInput" type="file" accept="image/*">
       
       <label>Répétition X:</label>
-      <input id="repeatX" type="range" min="-10" max="10" step="0.1" value="1">
+      <input id="repeatX" type="range" min="0.1" max="5" step="0.1" value="1">
       <div class="value-display">Valeur: <span id="repeatXValue">1</span></div>
 
       <label>Répétition Y:</label>
-      <input id="repeatY" type="range" min="-10" max="10" step="0.1" value="1">
+      <input id="repeatY" type="range" min="0.1" max="5" step="0.1" value="1">
       <div class="value-display">Valeur: <span id="repeatYValue">1</span></div>
 
-      <label>Échelle X:</label>
-      <input id="scaleX" type="range" min="0.1" max="5" step="0.1" value="1">
-      <div class="value-display">Valeur: <span id="scaleXValue">1</span></div>
+      <label>Rotation (degrés):</label>
+      <input id="rotation" type="range" min="0" max="360" step="1" value="0">
+      <div class="value-display">Valeur: <span id="rotationValue">0</span></div>
+    </div>
 
-      <label>Échelle Y:</label>
-      <input id="scaleY" type="range" min="0.1" max="5" step="0.1" value="1">
-      <div class="value-display">Valeur: <span id="scaleYValue">1</span></div>
+    <!-- Dimensions -->
+    <div class="control-section">
+      <h3>Dimensions</h3>
+      <label for="orientationSelect">Orientation :</label>
+      <select id="orientationSelect">
+        <option value="horizontal">Horizontal</option>
+        <option value="vertical">Vertical</option>
+      </select>
 
-      <label>Offset X:</label>
-      <input id="offsetX" type="range" min="-1" max="1" step="0.01" value="0">
-      <div class="value-display">Valeur: <span id="offsetXValue">0</span></div>
+      <label>Largeur :</label>
+      <input id="widthRange" type="range" min="0.1" max="5" step="0.1" value="1">
+      <div class="value-display">Valeur: <span id="widthValue">1</span></div>
 
-      <label>Offset Y:</label>
-      <input id="offsetY" type="range" min="-1" max="1" step="0.01" value="0">
-      <div class="value-display">Valeur: <span id="offsetYValue">0</span></div>
+      <label>Hauteur :</label>
+      <input id="heightRange" type="range" min="0.1" max="5" step="0.1" value="1">
+      <div class="value-display">Valeur: <span id="heightValue">1</span></div>
     </div>
   </div>
 
   <a-scene>
     <a-entity light="type: ambient; color: #FFF; intensity: 1"></a-entity>
     <a-entity light="type: directional; intensity: 0.5" position="1 1 1"></a-entity>
-    <a-entity id="model" position="0 1 0" scale="5 5 5"></a-entity>
+
+    <a-entity 
+      id="model" 
+      position="0 1 0" 
+      scale="5 5 5" 
+      rotation="0 0 0">
+    </a-entity>
+
+    <a-entity id="cameraRig" position="0 0 0">
+      <a-entity 
+        camera 
+        look-controls 
+        wasd-controls
+        position="0 1.6 2">
+      </a-entity>
+    </a-entity>
   </a-scene>
 
   <script>
+    // Éléments DOM
     const modelEntity = document.querySelector('#model');
     const modelInput = document.getElementById('modelInput');
+    const meshSelect = document.getElementById('meshSelect');
+    const showMeshNames = document.getElementById('showMeshNames');
     const textureInput = document.getElementById('textureInput');
+    const debug = document.getElementById('debug');
+    
+    // Contrôles de dimensions
+    const orientationSelect = document.getElementById('orientationSelect');
+    const widthRange = document.getElementById('widthRange');
+    const heightRange = document.getElementById('heightRange');
+    const widthValue = document.getElementById('widthValue');
+    const heightValue = document.getElementById('heightValue');
 
+    // Contrôles de texture
     const repeatX = document.getElementById('repeatX');
     const repeatY = document.getElementById('repeatY');
-    const scaleX = document.getElementById('scaleX');
-    const scaleY = document.getElementById('scaleY');
-    const offsetX = document.getElementById('offsetX');
-    const offsetY = document.getElementById('offsetY');
-
+    const rotation = document.getElementById('rotation');
     const repeatXValue = document.getElementById('repeatXValue');
     const repeatYValue = document.getElementById('repeatYValue');
-    const scaleXValue = document.getElementById('scaleXValue');
-    const scaleYValue = document.getElementById('scaleYValue');
-    const offsetXValue = document.getElementById('offsetXValue');
-    const offsetYValue = document.getElementById('offsetYValue');
+    const rotationValue = document.getElementById('rotationValue');
 
     let currentTexture = null;
+    let selectedMesh = null;
 
+    // Chargement du modèle
     modelInput.addEventListener('change', (event) => {
       const file = event.target.files[0];
       if (file) {
         const modelUrl = URL.createObjectURL(file);
         modelEntity.setAttribute('gltf-model', modelUrl);
+
+        // Mettre à jour la liste des meshes après le chargement
+        modelEntity.addEventListener('model-loaded', updateMeshList);
       }
     });
 
+    // Afficher les noms des meshes
+    showMeshNames.addEventListener('click', () => {
+      const model = modelEntity.getObject3D('mesh');
+      if (model) {
+        debug.innerHTML = '';
+        model.traverse((node) => {
+          if (node.isMesh) {
+            debug.innerHTML += `Mesh trouvé: ${node.name}<br>`;
+          }
+        });
+      }
+    });
+
+    // Mise à jour de la liste des meshes
+    function updateMeshList() {
+      const model = modelEntity.getObject3D('mesh');
+      meshSelect.innerHTML = '<option value="">Sélectionnez un mesh</option>';
+      
+      if (model) {
+        model.traverse((node) => {
+          if (node.isMesh) {
+            const option = document.createElement('option');
+            option.value = node.name;
+            option.textContent = node.name;
+            meshSelect.appendChild(option);
+          }
+        });
+      }
+    }
+
+    // Application de la texture
     textureInput.addEventListener('change', (event) => {
       const file = event.target.files[0];
       if (file) {
         const textureUrl = URL.createObjectURL(file);
         const loader = new THREE.TextureLoader();
+        
         loader.load(textureUrl, (texture) => {
           currentTexture = texture;
           currentTexture.wrapS = THREE.RepeatWrapping;
@@ -176,25 +254,26 @@
       }
     });
 
-    const updateTextureSettings = () => {
+    // Mise à jour des paramètres de texture
+    function updateTextureSettings() {
       if (currentTexture) {
         currentTexture.repeat.set(
-          parseFloat(repeatX.value) * parseFloat(scaleX.value),
-          parseFloat(repeatY.value) * parseFloat(scaleY.value)
+          parseFloat(repeatX.value),
+          parseFloat(repeatY.value)
         );
-        currentTexture.offset.set(
-          parseFloat(offsetX.value),
-          parseFloat(offsetY.value)
-        );
+        currentTexture.rotation = parseFloat(rotation.value) * Math.PI / 180;
         currentTexture.needsUpdate = true;
       }
-    };
+    }
 
-    const applyTexture = () => {
+    // Application de la texture au mesh sélectionné
+    function applyTexture() {
       const model = modelEntity.getObject3D('mesh');
+      const selectedMeshName = meshSelect.value;
+
       if (model && currentTexture) {
         model.traverse((node) => {
-          if (node.isMesh) {
+          if (node.isMesh && (selectedMeshName === '' || node.name === selectedMeshName)) {
             if (!node.material.map) {
               node.material = new THREE.MeshStandardMaterial();
             }
@@ -203,15 +282,63 @@
           }
         });
       }
-    };
+    }
 
-    [repeatX, repeatY, scaleX, scaleY, offsetX, offsetY].forEach((input) => {
-      input.addEventListener('input', () => {
-        const valueSpan = document.getElementById(input.id + 'Value');
-        valueSpan.textContent = input.value;
-        updateTextureSettings();
-      });
+    // Event listeners pour les contrôles de texture
+    repeatX.addEventListener('input', (e) => {
+      repeatXValue.textContent = e.target.value;
+      updateTextureSettings();
     });
+
+    repeatY.addEventListener('input', (e) => {
+      repeatYValue.textContent = e.target.value;
+      updateTextureSettings();
+    });
+
+    rotation.addEventListener('input', (e) => {
+      rotationValue.textContent = e.target.value;
+      updateTextureSettings();
+    });
+
+    meshSelect.addEventListener('change', applyTexture);
+
+    // Gestion des dimensions
+    let textureWidth = 1;
+    let textureHeight = 1;
+    let textureOrientation = 'horizontal';
+
+    widthRange.addEventListener('input', (e) => {
+      textureWidth = parseFloat(e.target.value);
+      widthValue.textContent = textureWidth.toFixed(1);
+      updateDimensions();
+    });
+
+    heightRange.addEventListener('input', (e) => {
+      textureHeight = parseFloat(e.target.value);
+      heightValue.textContent = textureHeight.toFixed(1);
+      updateDimensions();
+    });
+
+    orientationSelect.addEventListener('change', () => {
+      textureOrientation = orientationSelect.value;
+      updateDimensions();
+    });
+
+    function updateDimensions() {
+      const model = modelEntity.getObject3D('mesh');
+      if (model) {
+        model.traverse((child) => {
+          if (child.isMesh) {
+            child.scale.set(textureWidth, textureHeight, 1);
+            if (textureOrientation === 'vertical') {
+              child.rotation.set(Math.PI / 2, 0, 0);
+            } else {
+              child.rotation.set(0, 0, 0);
+            }
+          }
+        });
+      }
+    }
   </script>
 </body>
 </html>
