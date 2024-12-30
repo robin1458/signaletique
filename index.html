@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Visualiseur GLB avec Texture</title>
+  <title>Visualiseur GLB avec Contrôles Texture</title>
   <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/110/three.min.js"></script>
   <style>
     body {
       margin: 0;
@@ -50,13 +51,12 @@
       margin-bottom: 8px;
     }
 
-    input[type="file"], select, button {
+    input[type="range"], input[type="file"], select, button {
       width: 100%;
       padding: 8px;
       margin-bottom: 10px;
       border-radius: 4px;
       border: 1px solid #ccc;
-      background: white;
     }
 
     button {
@@ -68,11 +68,6 @@
 
     button:hover {
       background: #45a049;
-    }
-
-    input[type="range"] {
-      width: 100%;
-      margin: 8px 0;
     }
 
     .value-display {
@@ -99,67 +94,124 @@
       <input id="modelInput" type="file" accept=".glb">
     </div>
 
-    <!-- Sélection et debug des meshes -->
+    <!-- Contrôles de texture -->
     <div class="control-section">
-      <h3>Meshes</h3>
-      <button id="showMeshNames">Afficher les noms des meshes</button>
-      <select id="meshSelect">
-        <option value="">Sélectionnez un mesh</option>
-      </select>
-      <div id="debug"></div>
-    </div>
-
-    <!-- Texture -->
-    <div class="control-section">
-      <h3>Texture</h3>
+      <h3>Contrôles Texture</h3>
       <label for="textureInput">Importer une texture :</label>
       <input id="textureInput" type="file" accept="image/*">
       
       <label>Répétition X:</label>
-      <input id="repeatX" type="range" min="0.1" max="5" step="0.1" value="1">
+      <input id="repeatX" type="range" min="-10" max="10" step="0.1" value="1">
       <div class="value-display">Valeur: <span id="repeatXValue">1</span></div>
 
       <label>Répétition Y:</label>
-      <input id="repeatY" type="range" min="0.1" max="5" step="0.1" value="1">
+      <input id="repeatY" type="range" min="-10" max="10" step="0.1" value="1">
       <div class="value-display">Valeur: <span id="repeatYValue">1</span></div>
 
-      <label>Rotation (degrés):</label>
-      <input id="rotation" type="range" min="0" max="360" step="1" value="0">
-      <div class="value-display">Valeur: <span id="rotationValue">0</span></div>
-    </div>
+      <label>Échelle X:</label>
+      <input id="scaleX" type="range" min="0.1" max="5" step="0.1" value="1">
+      <div class="value-display">Valeur: <span id="scaleXValue">1</span></div>
 
-    <!-- Dimensions -->
-    <div class="control-section">
-      <h3>Dimensions</h3>
-      <label for="orientationSelect">Orientation :</label>
-      <select id="orientationSelect">
-        <option value="horizontal">Horizontal</option>
-        <option value="vertical">Vertical</option>
-      </select>
+      <label>Échelle Y:</label>
+      <input id="scaleY" type="range" min="0.1" max="5" step="0.1" value="1">
+      <div class="value-display">Valeur: <span id="scaleYValue">1</span></div>
 
-      <label>Largeur :</label>
-      <input id="widthRange" type="range" min="0.1" max="5" step="0.1" value="1">
-      <div class="value-display">Valeur: <span id="widthValue">1</span></div>
+      <label>Offset X:</label>
+      <input id="offsetX" type="range" min="-1" max="1" step="0.01" value="0">
+      <div class="value-display">Valeur: <span id="offsetXValue">0</span></div>
 
-      <label>Hauteur :</label>
-      <input id="heightRange" type="range" min="0.1" max="5" step="0.1" value="1">
-      <div class="value-display">Valeur: <span id="heightValue">1</span></div>
-
-      <!-- Position -->
-      <h3>Position</h3>
-      <label>X :</label>
-      <input id="positionX" type="range" min="-10" max="10" step="0.1" value="0">
-      <div class="value-display">Valeur: <span id="positionXValue">0</span></div>
-
-      <label>Y :</label>
-      <input id="positionY" type="range" min="-10" max="10" step="0.1" value="0">
-      <div class="value-display">Valeur: <span id="positionYValue">0</span></div>
-
-      <label>Z :</label>
-      <input id="positionZ" type="range" min="-10" max="10" step="0.1" value="0">
-      <div class="value-display">Valeur: <span id="positionZValue">0</span></div>
+      <label>Offset Y:</label>
+      <input id="offsetY" type="range" min="-1" max="1" step="0.01" value="0">
+      <div class="value-display">Valeur: <span id="offsetYValue">0</span></div>
     </div>
   </div>
 
   <a-scene>
     <a-entity light="type: ambient; color: #FFF; intensity: 1"></a-entity>
+    <a-entity light="type: directional; intensity: 0.5" position="1 1 1"></a-entity>
+    <a-entity id="model" position="0 1 0" scale="5 5 5"></a-entity>
+  </a-scene>
+
+  <script>
+    const modelEntity = document.querySelector('#model');
+    const modelInput = document.getElementById('modelInput');
+    const textureInput = document.getElementById('textureInput');
+
+    const repeatX = document.getElementById('repeatX');
+    const repeatY = document.getElementById('repeatY');
+    const scaleX = document.getElementById('scaleX');
+    const scaleY = document.getElementById('scaleY');
+    const offsetX = document.getElementById('offsetX');
+    const offsetY = document.getElementById('offsetY');
+
+    const repeatXValue = document.getElementById('repeatXValue');
+    const repeatYValue = document.getElementById('repeatYValue');
+    const scaleXValue = document.getElementById('scaleXValue');
+    const scaleYValue = document.getElementById('scaleYValue');
+    const offsetXValue = document.getElementById('offsetXValue');
+    const offsetYValue = document.getElementById('offsetYValue');
+
+    let currentTexture = null;
+
+    modelInput.addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const modelUrl = URL.createObjectURL(file);
+        modelEntity.setAttribute('gltf-model', modelUrl);
+      }
+    });
+
+    textureInput.addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const textureUrl = URL.createObjectURL(file);
+        const loader = new THREE.TextureLoader();
+        loader.load(textureUrl, (texture) => {
+          currentTexture = texture;
+          currentTexture.wrapS = THREE.RepeatWrapping;
+          currentTexture.wrapT = THREE.RepeatWrapping;
+          updateTextureSettings();
+          applyTexture();
+        });
+      }
+    });
+
+    const updateTextureSettings = () => {
+      if (currentTexture) {
+        currentTexture.repeat.set(
+          parseFloat(repeatX.value) * parseFloat(scaleX.value),
+          parseFloat(repeatY.value) * parseFloat(scaleY.value)
+        );
+        currentTexture.offset.set(
+          parseFloat(offsetX.value),
+          parseFloat(offsetY.value)
+        );
+        currentTexture.needsUpdate = true;
+      }
+    };
+
+    const applyTexture = () => {
+      const model = modelEntity.getObject3D('mesh');
+      if (model && currentTexture) {
+        model.traverse((node) => {
+          if (node.isMesh) {
+            if (!node.material.map) {
+              node.material = new THREE.MeshStandardMaterial();
+            }
+            node.material.map = currentTexture;
+            node.material.needsUpdate = true;
+          }
+        });
+      }
+    };
+
+    [repeatX, repeatY, scaleX, scaleY, offsetX, offsetY].forEach((input) => {
+      input.addEventListener('input', () => {
+        const valueSpan = document.getElementById(input.id + 'Value');
+        valueSpan.textContent = input.value;
+        updateTextureSettings();
+      });
+    });
+  </script>
+</body>
+</html>
