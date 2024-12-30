@@ -13,68 +13,204 @@
   <script src="https://cdn.jsdelivr.net/npm/three@0.151.0/examples/js/postprocessing/ShaderPass.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.151.0/examples/js/shaders/CopyShader.js"></script>
   <style>
-    body { margin: 0; font-family: Arial, sans-serif; }
-    .controls { position: absolute; top: 10px; left: 10px; background: rgba(0, 0, 0, 0.5); padding: 10px; color: white; }
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+    }
+
+    .controls {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(128, 128, 128, 0.8);
+      padding: 20px;
+      border-radius: 5px;
+      z-index: 10;
+      width: 250px;
+    }
+
+    h2 {
+      font-size: 20px;
+      color: #fff;
+      text-align: center;
+    }
+
+    .file-upload, .orientation, .dimensions, .effects {
+      margin-top: 15px;
+    }
+
+    label {
+      color: #fff;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    input[type="file"], select, input[type="range"], input[type="checkbox"] {
+      width: 100%;
+      padding: 5px;
+      border-radius: 3px;
+      border: 1px solid #ccc;
+      cursor: pointer;
+    }
+
+    .range-labels {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .range-labels span {
+      color: #fff;
+    }
   </style>
 </head>
 <body>
+  <!-- Interface de contrôle -->
   <div class="controls">
-    <h2>Effets Post-Processing</h2>
-    <div class="bloom">
+    <h2>Film Signalétique</h2>
+    <div class="file-upload">
+      <label for="textureInput">Importer votre film :</label>
+      <input id="textureInput" type="file" accept="image/*">
+    </div>
+
+    <div class="orientation">
+      <label for="orientationSelect">Orientation :</label>
+      <select id="orientationSelect">
+        <option value="horizontal">Horizontal</option>
+        <option value="vertical">Vertical</option>
+      </select>
+    </div>
+
+    <div class="dimensions">
+      <label for="widthRange">Largeur :</label>
+      <input id="widthRange" type="range" min="0.1" max="5" step="0.1" value="1">
+      <div class="range-labels">
+        <span>0.1</span><span>5</span>
+      </div>
+
+      <label for="heightRange">Hauteur :</label>
+      <input id="heightRange" type="range" min="0.1" max="5" step="0.1" value="1">
+      <div class="range-labels">
+        <span>0.1</span><span>5</span>
+      </div>
+    </div>
+
+    <div class="effects">
       <label for="bloomSlider">Intensité Bloom :</label>
       <input id="bloomSlider" type="range" min="0" max="2" step="0.1" value="0.5">
-    </div>
-    <div class="glitch">
+
       <label for="glitchCheckbox">Activer Glitch :</label>
       <input id="glitchCheckbox" type="checkbox">
     </div>
   </div>
-  
+
+  <!-- Scène A-Frame -->
   <a-scene>
-    <!-- Modèle 3D, caméra et autres éléments -->
-    <a-entity id="model" gltf-model="url(testawa.glb)" position="0 1 0"></a-entity>
+    <!-- Lumières -->
+    <a-entity light="type: ambient; color: #FFF; intensity: 1"></a-entity>
+    <a-entity light="type: directional; intensity: 0.5" position="1 1 1"></a-entity>
+
+    <!-- Charger et afficher le modèle GLB -->
+    <a-entity id="model" gltf-model="url(testawa.glb)" position="0 1 0" scale="5 5 5" rotation="0 0 0"></a-entity>
+
+    <!-- Caméra avec contrôle utilisateur -->
+    <a-entity id="cameraRig" position="0 0 0">
+      <a-entity camera look-controls position="0 1.6 2" id="camera"></a-entity>
+    </a-entity>
+
   </a-scene>
 
   <script>
     // Sélection des éléments
+    const modelEntity = document.querySelector('#model');
+    const textureInput = document.getElementById('textureInput');
+    const orientationSelect = document.getElementById('orientationSelect');
+    const widthRange = document.getElementById('widthRange');
+    const heightRange = document.getElementById('heightRange');
     const bloomSlider = document.getElementById('bloomSlider');
     const glitchCheckbox = document.getElementById('glitchCheckbox');
 
-    // Initialisation de Three.js
+    // Variables pour la texture et les effets
+    let textureUrl = '';
+    let textureWidth = 1;
+    let textureHeight = 1;
+    let textureOrientation = 'horizontal';
+    let bloomStrength = 0.5;
+    let glitchEnabled = false;
+
+    // Appliquer la texture et ajuster selon l'orientation et les dimensions
+    textureInput.addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        textureUrl = URL.createObjectURL(file);
+        modelEntity.addEventListener('loaded', () => {
+          const model = modelEntity.getObject3D('mesh');
+          if (model) {
+            model.traverse((child) => {
+              if (child.isMesh && child.name === "44854-CORP PO 70-65-746 CL-1") {
+                child.material.map = new THREE.TextureLoader().load(textureUrl);
+                child.material.needsUpdate = true;
+                child.scale.set(textureWidth, textureHeight, 1);
+                if (textureOrientation === 'vertical') {
+                  child.rotation.set(Math.PI / 2, 0, 0);
+                } else {
+                  child.rotation.set(0, 0, 0);
+                }
+              }
+            });
+          }
+        });
+      }
+    });
+
+    // Mise à jour des dimensions et orientation de la texture
+    widthRange.addEventListener('input', () => {
+      textureWidth = parseFloat(widthRange.value);
+      updateTextureDimensions();
+    });
+
+    heightRange.addEventListener('input', () => {
+      textureHeight = parseFloat(heightRange.value);
+      updateTextureDimensions();
+    });
+
+    orientationSelect.addEventListener('change', () => {
+      textureOrientation = orientationSelect.value;
+      updateTextureDimensions();
+    });
+
+    // Fonction pour mettre à jour les dimensions et l'orientation du modèle
+    function updateTextureDimensions() {
+      if (modelEntity) {
+        const model = modelEntity.getObject3D('mesh');
+        if (model) {
+          model.traverse((child) => {
+            if (child.isMesh) {
+              child.scale.set(textureWidth, textureHeight, 1);
+              if (textureOrientation === 'vertical') {
+                child.rotation.set(Math.PI / 2, 0, 0);
+              } else {
+                child.rotation.set(0, 0, 0);
+              }
+            }
+          });
+        }
+      }
+    }
+
+    // Initialiser Three.js et le post-processing
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer();
     document.body.appendChild(renderer.domElement);
 
-    // Configuration des passes de post-processing
-    const composer = new EffectComposer(renderer);
-    const renderPass = new RenderPass(scene, camera);
+    const composer = new THREE.EffectComposer(renderer);
+    const renderPass = new THREE.RenderPass(scene, camera);
     composer.addPass(renderPass);
 
-    const bloomPass = new BloomPass(1.25);
+    const bloomPass = new THREE.BloomPass(bloomStrength);
     composer.addPass(bloomPass);
 
-    const glitchPass = new GlitchPass();
-    composer.addPass(glitchPass);
-
-    const outputPass = new ShaderPass(CopyShader);
-    composer.addPass(outputPass);
-
-    // Fonction d'animation
-    function animate() {
-      requestAnimationFrame(animate);
-      composer.render();
-    }
-    animate();
-
-    // Contrôles UI
-    bloomSlider.addEventListener('input', () => {
-      bloomPass.strength = parseFloat(bloomSlider.value);
-    });
-
-    glitchCheckbox.addEventListener('change', () => {
-      glitchPass.enabled = glitchCheckbox.checked;
-    });
-  </script>
-</body>
-</html>
+    const glitchPass = new THREE.GlitchPass();
+    composer
