@@ -118,7 +118,6 @@
     <a-entity id="cameraRig" position="0 0 0">
       <a-entity camera look-controls position="0 1.6 2" id="camera"></a-entity>
     </a-entity>
-
   </a-scene>
 
   <script>
@@ -199,7 +198,7 @@
       }
     }
 
-    // Initialiser Three.js et le post-processing
+    // Post-processing avec Three.js
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer();
@@ -207,10 +206,4 @@
 
     const composer = new THREE.EffectComposer(renderer);
     const renderPass = new THREE.RenderPass(scene, camera);
-    composer.addPass(renderPass);
-
-    const bloomPass = new THREE.BloomPass(bloomStrength);
-    composer.addPass(bloomPass);
-
-    const glitchPass = new THREE.GlitchPass();
-    composer
+    composer.addPass(render
