@@ -47,14 +47,6 @@
       <input id="rotation" type="range" min="0" max="360" step="1" value="0">
       <div class="value-display">Valeur: <span id="rotationValue">0</span></div>
 
-      <label>Offset X:</label>
-      <input id="offsetX" type="range" min="-1" max="1" step="0.01" value="0">
-      <div class="value-display">Valeur: <span id="offsetXValue">0</span></div>
-
-      <label>Offset Y:</label>
-      <input id="offsetY" type="range" min="-1" max="1" step="0.01" value="0">
-      <div class="value-display">Valeur: <span id="offsetYValue">0</span></div>
-
       <label>Échelle UV X:</label>
       <input id="scaleUVX" type="range" min="0.1" max="5" step="0.1" value="1">
       <div class="value-display">Valeur: <span id="scaleUVXValue">1</span></div>
@@ -124,15 +116,11 @@
     const repeatX = document.getElementById('repeatX');
     const repeatY = document.getElementById('repeatY');
     const rotation = document.getElementById('rotation');
-    const offsetX = document.getElementById('offsetX');
-    const offsetY = document.getElementById('offsetY');
     const scaleUVX = document.getElementById('scaleUVX');
     const scaleUVY = document.getElementById('scaleUVY');
     const repeatXValue = document.getElementById('repeatXValue');
     const repeatYValue = document.getElementById('repeatYValue');
     const rotationValue = document.getElementById('rotationValue');
-    const offsetXValue = document.getElementById('offsetXValue');
-    const offsetYValue = document.getElementById('offsetYValue');
     const scaleUVXValue = document.getElementById('scaleUVXValue');
     const scaleUVYValue = document.getElementById('scaleUVYValue');
 
@@ -206,10 +194,6 @@
           parseFloat(repeatY.value)
         );
         currentTexture.rotation = parseFloat(rotation.value) * Math.PI / 180;
-        currentTexture.offset.set(
-          parseFloat(offsetX.value),
-          parseFloat(offsetY.value)
-        );
         // Ajout des paramètres pour l'échelle UV
         currentTexture.matrix = new THREE.Matrix3().scale(
           parseFloat(scaleUVX.value),
@@ -250,16 +234,6 @@
 
     rotation.addEventListener('input', (e) => {
       rotationValue.textContent = e.target.value;
-      updateTextureSettings();
-    });
-
-    offsetX.addEventListener('input', (e) => {
-      offsetXValue.textContent = e.target.value;
-      updateTextureSettings();
-    });
-
-    offsetY.addEventListener('input', (e) => {
-      offsetYValue.textContent = e.target.value;
       updateTextureSettings();
     });
 
