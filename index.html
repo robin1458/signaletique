@@ -294,8 +294,9 @@
         
         loader.load(textureUrl, (texture) => {
           currentTexture = texture;
-          currentTexture.wrapS = THREE.RepeatWrapping;
-          currentTexture.wrapT = THREE.RepeatWrapping;
+          // Utiliser ClampToEdgeWrapping pour éviter toute répétition indésirable
+          currentTexture.wrapS = THREE.ClampToEdgeWrapping;
+          currentTexture.wrapT = THREE.ClampToEdgeWrapping;
           updateTextureSettings();
           applyTexture();
         });
@@ -305,11 +306,22 @@
     // Mise à jour des paramètres de texture
     function updateTextureSettings() {
       if (currentTexture) {
-        // Ajuster la répétition en fonction du nombre de fois désiré
-        currentTexture.repeat.set(
-          parseFloat(repeatX.value), 
-          parseFloat(repeatY.value)
-        );
+        // Ajuster le comportement selon la répétition
+        const repeatXValue = parseFloat(repeatX.value);
+        const repeatYValue = parseFloat(repeatY.value);
+        
+        if (repeatXValue === 1 && repeatYValue === 1) {
+          // Si répétition est à 1, la texture ne doit pas se répéter du tout
+          currentTexture.wrapS = THREE.ClampToEdgeWrapping;
+          currentTexture.wrapT = THREE.ClampToEdgeWrapping;
+          currentTexture.repeat.set(1, 1); // Assurez-vous que repeat est à 1 pour éviter toute confusion
+        } else {
+          // Pour d'autres valeurs, revenir à RepeatWrapping
+          currentTexture.wrapS = THREE.RepeatWrapping;
+          currentTexture.wrapT = THREE.RepeatWrapping;
+          currentTexture.repeat.set(repeatXValue, repeatYValue);
+        }
+
         currentTexture.rotation = parseFloat(rotation.value) * Math.PI / 180;
         currentTexture.offset.set(
           parseFloat(offsetX.value),
@@ -327,9 +339,8 @@
                 const originalUVArray = originalUVArrays.get(node.name) || uvArray;
                 
                 for (let i = 0; i < uvArray.length; i += 2) {
-                  // L'échelle UV modifie ici la taille de chaque répétition de la texture
-                  uvArray[i] = originalUVArray[i] / parseFloat(repeatX.value) * scaleX;
-                  uvArray[i + 1] = originalUVArray[i + 1] / parseFloat(repeatY.value) * scaleY;
+                  uvArray[i] = originalUVArray[i] * scaleX;
+                  uvArray[i + 1] = originalUVArray[i + 1] * scaleY;
                 }
                 node.geometry.attributes.uv.needsUpdate = true;
               }
