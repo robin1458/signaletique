@@ -5,14 +5,136 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Visualiseur GLB avec Texture</title>
   <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-  <script src="https://aframe.io/releases/1.2.0/aframe-extras.min.js"></script>
   <style>
-    /* ... (le CSS reste inchangé) ... */
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+
+    .controls {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(40, 44, 52, 0.9);
+      padding: 20px;
+      border-radius: 8px;
+      z-index: 10;
+      width: 300px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+
+    h2, h3 {
+      color: #fff;
+      text-align: center;
+      margin: 0 0 15px 0;
+    }
+
+    h3 {
+      font-size: 16px;
+      margin-top: 15px;
+    }
+
+    .control-section {
+      margin-top: 15px;
+      padding: 10px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 5px;
+    }
+
+    label {
+      color: #fff;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    input[type="file"], select, button {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      background: white;
+    }
+
+    button {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #45a049;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      margin: 8px 0;
+    }
+
+    .value-display {
+      color: #fff;
+      text-align: center;
+      margin: 5px 0;
+      font-size: 14px;
+    }
+
+    #debug {
+      color: #fff;
+      margin-top: 10px;
+      font-family: monospace;
+    }
   </style>
 </head>
 <body>
   <div class="controls">
-    <!-- ... (le contenu reste inchangé jusqu'ici) ... -->
+    <h2>Contrôles du modèle</h2>
+    
+    <!-- Import du modèle -->
+    <div class="control-section">
+      <label for="modelInput">Importer un modèle GLB :</label>
+      <input id="modelInput" type="file" accept=".glb">
+    </div>
+
+    <!-- Sélection et debug des meshes -->
+    <div class="control-section">
+      <h3>Meshes</h3>
+      <button id="showMeshNames">Afficher les noms des meshes</button>
+      <select id="meshSelect">
+        <option value="">Sélectionnez un mesh</option>
+      </select>
+      <div id="debug"></div>
+    </div>
+
+    <!-- Texture -->
+    <div class="control-section">
+      <h3>Texture</h3>
+      <label for="textureInput">Importer une texture :</label>
+      <input id="textureInput" type="file" accept="image/*">
+      
+      <label>Répétition X:</label>
+      <input id="repeatX" type="range" min="0.1" max="5" step="0.1" value="1">
+      <div class="value-display">Valeur: <span id="repeatXValue">1</span></div>
+
+      <label>Répétition Y:</label>
+      <input id="repeatY" type="range" min="0.1" max="5" step="0.1" value="1">
+      <div class="value-display">Valeur: <span id="repeatYValue">1</span></div>
+
+      <label>Rotation (degrés):</label>
+      <input id="rotation" type="range" min="0" max="360" step="1" value="0">
+      <div class="value-display">Valeur: <span id="rotationValue">0</span></div>
+
+      <label>Offset X:</label>
+      <input id="offsetX" type="range" min="-1" max="1" step="0.01" value="0">
+      <div class="value-display">Valeur: <span id="offsetXValue">0</span></div>
+
+      <label>Offset Y:</label>
+      <input id="offsetY" type="range" min="-1" max="1" step="0.01" value="0">
+      <div class="value-display">Valeur: <span id="offsetYValue">0</span></div>
+    </div>
 
     <!-- Dimensions -->
     <div class="control-section">
@@ -31,23 +153,11 @@
       <input id="heightRange" type="range" min="0.1" max="5" step="0.1" value="1">
       <div class="value-display">Valeur: <span id="heightValue">1</span></div>
     </div>
-
-    <!-- Luminosité -->
-    <div class="control-section">
-      <h3>Luminosité</h3>
-      <label>Ambient Light Intensity:</label>
-      <input id="ambientIntensity" type="range" min="0" max="1" step="0.1" value="0.5">
-      <div class="value-display">Valeur: <span id="ambientIntensityValue">0.5</span></div>
-
-      <label>Directional Light Intensity:</label>
-      <input id="directionalIntensity" type="range" min="0" max="1" step="0.1" value="0.5">
-      <div class="value-display">Valeur: <span id="directionalIntensityValue">0.5</span></div>
-    </div>
   </div>
 
   <a-scene>
-    <a-entity id="ambientLight" light="type: ambient; color: #FFF; intensity: 0.5"></a-entity>
-    <a-entity id="directionalLight" light="type: directional; intensity: 0.5" position="1 1 1"></a-entity>
+    <a-entity light="type: ambient; color: #FFF; intensity: 1"></a-entity>
+    <a-entity light="type: directional; intensity: 0.5" position="1 1 1"></a-entity>
 
     <a-entity 
       id="model" 
@@ -74,7 +184,7 @@
     const showMeshNames = document.getElementById('showMeshNames');
     const textureInput = document.getElementById('textureInput');
     const debug = document.getElementById('debug');
-
+    
     // Contrôles de dimensions
     const orientationSelect = document.getElementById('orientationSelect');
     const widthRange = document.getElementById('widthRange');
@@ -86,21 +196,75 @@
     const repeatX = document.getElementById('repeatX');
     const repeatY = document.getElementById('repeatY');
     const rotation = document.getElementById('rotation');
+    const offsetX = document.getElementById('offsetX');
+    const offsetY = document.getElementById('offsetY');
     const repeatXValue = document.getElementById('repeatXValue');
     const repeatYValue = document.getElementById('repeatYValue');
     const rotationValue = document.getElementById('rotationValue');
-
-    // Nouveaux contrôles de luminosité
-    const ambientIntensity = document.getElementById('ambientIntensity');
-    const ambientIntensityValue = document.getElementById('ambientIntensityValue');
-    const directionalIntensity = document.getElementById('directionalIntensity');
-    const directionalIntensityValue = document.getElementById('directionalIntensityValue');
+    const offsetXValue = document.getElementById('offsetXValue');
+    const offsetYValue = document.getElementById('offsetYValue');
 
     let currentTexture = null;
     let selectedMesh = null;
 
     // Chargement du modèle
-    // ... (le code reste inchangé jusqu'ici) ...
+    modelInput.addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const modelUrl = URL.createObjectURL(file);
+        modelEntity.setAttribute('gltf-model', modelUrl);
+
+        // Mettre à jour la liste des meshes après le chargement
+        modelEntity.addEventListener('model-loaded', updateMeshList);
+      }
+    });
+
+    // Afficher les noms des meshes
+    showMeshNames.addEventListener('click', () => {
+      const model = modelEntity.getObject3D('mesh');
+      if (model) {
+        debug.innerHTML = '';
+        model.traverse((node) => {
+          if (node.isMesh) {
+            debug.innerHTML += `Mesh trouvé: ${node.name}<br>`;
+          }
+        });
+      }
+    });
+
+    // Mise à jour de la liste des meshes
+    function updateMeshList() {
+      const model = modelEntity.getObject3D('mesh');
+      meshSelect.innerHTML = '<option value="">Sélectionnez un mesh</option>';
+      
+      if (model) {
+        model.traverse((node) => {
+          if (node.isMesh) {
+            const option = document.createElement('option');
+            option.value = node.name;
+            option.textContent = node.name;
+            meshSelect.appendChild(option);
+          }
+        });
+      }
+    }
+
+    // Application de la texture
+    textureInput.addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const textureUrl = URL.createObjectURL(file);
+        const loader = new THREE.TextureLoader();
+        
+        loader.load(textureUrl, (texture) => {
+          currentTexture = texture;
+          currentTexture.wrapS = THREE.RepeatWrapping;
+          currentTexture.wrapT = THREE.RepeatWrapping;
+          updateTextureSettings();
+          applyTexture();
+        });
+      }
+    });
 
     // Mise à jour des paramètres de texture
     function updateTextureSettings() {
@@ -110,15 +274,59 @@
           parseFloat(repeatY.value)
         );
         currentTexture.rotation = parseFloat(rotation.value) * Math.PI / 180;
+        currentTexture.offset.set(
+          parseFloat(offsetX.value),
+          parseFloat(offsetY.value)
+        );
         currentTexture.needsUpdate = true;
       }
     }
 
     // Application de la texture au mesh sélectionné
-    // ... (le code reste inchangé jusqu'ici) ...
+    function applyTexture() {
+      const model = modelEntity.getObject3D('mesh');
+      const selectedMeshName = meshSelect.value;
+
+      if (model && currentTexture) {
+        model.traverse((node) => {
+          if (node.isMesh && (selectedMeshName === '' || node.name === selectedMeshName)) {
+            if (!node.material.map) {
+              node.material = new THREE.MeshStandardMaterial();
+            }
+            node.material.map = currentTexture;
+            node.material.needsUpdate = true;
+          }
+        });
+      }
+    }
 
     // Event listeners pour les contrôles de texture
-    // ... (le code reste inchangé jusqu'ici) ...
+    repeatX.addEventListener('input', (e) => {
+      repeatXValue.textContent = e.target.value;
+      updateTextureSettings();
+    });
+
+    repeatY.addEventListener('input', (e) => {
+      repeatYValue.textContent = e.target.value;
+      updateTextureSettings();
+    });
+
+    rotation.addEventListener('input', (e) => {
+      rotationValue.textContent = e.target.value;
+      updateTextureSettings();
+    });
+
+    offsetX.addEventListener('input', (e) => {
+      offsetXValue.textContent = e.target.value;
+      updateTextureSettings();
+    });
+
+    offsetY.addEventListener('input', (e) => {
+      offsetYValue.textContent = e.target.value;
+      updateTextureSettings();
+    });
+
+    meshSelect.addEventListener('change', applyTexture);
 
     // Gestion des dimensions
     let textureWidth = 1;
@@ -157,20 +365,6 @@
         });
       }
     }
-
-    // Gestion de la luminosité
-    const ambientLight = document.getElementById('ambientLight').object3D;
-    const directionalLight = document.getElementById('directionalLight').object3D;
-
-    ambientIntensity.addEventListener('input', (e) => {
-      ambientIntensityValue.textContent = e.target.value;
-      ambientLight.intensity = parseFloat(e.target.value);
-    });
-
-    directionalIntensity.addEventListener('input', (e) => {
-      directionalIntensityValue.textContent = e.target.value;
-      directionalLight.intensity = parseFloat(e.target.value);
-    });
   </script>
 </body>
 </html>
