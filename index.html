@@ -262,6 +262,23 @@
     }
 
     // Application de la texture
+    function applyTexture() {
+      const model = modelEntity.getObject3D('mesh');
+      const selectedMeshName = meshSelect.value;
+
+      if (model && currentTexture) {
+        model.traverse((node) => {
+          if (node.isMesh && (selectedMeshName === '' || node.name === selectedMeshName)) {
+            if (!node.material.map) {
+              node.material = new THREE.MeshStandardMaterial();
+            }
+            node.material.map = currentTexture;
+            node.material.needsUpdate = true;
+          }
+        });
+      }
+    }
+
     textureInput.addEventListener('change', (event) => {
       const file = event.target.files[0];
       if (file) {
@@ -273,45 +290,47 @@
           currentTexture.wrapS = THREE.RepeatWrapping;
           currentTexture.wrapT = THREE.RepeatWrapping;
           updateTextureSettings();
-          applyTexture();
+          applyTexture(); // Assurez-vous que applyTexture est appelée ici
         });
       }
     });
 
     // Mise à jour des paramètres de texture
-  function updateTextureSettings() {
-    if (currentTexture) {
-      currentTexture.repeat.set(
-        parseFloat(repeatX.value),
-        parseFloat(repeatY.value)
-      );
-      currentTexture.rotation = parseFloat(rotation.value) * Math.PI / 180;
-      currentTexture.offset.set(
-        parseFloat(offsetX.value),
-        parseFloat(offsetY.value)
-      );
-      
-      const model = modelEntity.getObject3D('mesh');
-      if (model) {
-        model.traverse((node) => {
-          if (node.isMesh) {
-            const scaleX = parseFloat(scaleUVX.value);
-            const scaleY = parseFloat(scaleUVY.value);
-            if (node.geometry.attributes.uv) {
-              const uvArray = node.geometry.attributes.uv.array;
-              for (let i = 0; i < uvArray.length; i += 2) {
-                uvArray[i] *= scaleX;   // Scale UV X
-                uvArray[i + 1] *= scaleY; // Scale UV Y
+    function updateTextureSettings() {
+      if (currentTexture) {
+        currentTexture.repeat.set(
+          parseFloat(repeatX.value),
+          parseFloat(repeatY.value)
+        );
+        currentTexture.rotation = parseFloat(rotation.value) * Math.PI / 180;
+        currentTexture.offset.set(
+          parseFloat(offsetX.value),
+          parseFloat(offsetY.value)
+        );
+        
+        const model = modelEntity.getObject3D('mesh');
+        if (model) {
+          model.traverse((node) => {
+            if (node.isMesh) {
+              const scaleX = parseFloat(scaleUVX.value);
+              const scaleY = parseFloat(scaleUVY.value);
+              if (node.geometry.attributes.uv) {
+                const uvArray = node.geometry.attributes.uv.array;
+                for (let i = 0; i < uvArray.length; i += 2) {
+                  uvArray[i] *= scaleX;   // Scale UV X
+                  uvArray[i + 1] *= scaleY; // Scale UV Y
+                }
+                node.geometry.attributes.uv.needsUpdate = true;
               }
-              node.geometry.attributes.uv.needsUpdate = true;
             }
-          }
-        });
+          });
+        }
+        
+        currentTexture.needsUpdate = true;
+        applyTexture(); // Appliquez la texture après chaque mise à jour
       }
-      
-      currentTexture.needsUpdate = true;
     }
-  }
+
     // Event listeners pour les contrôles de texture
     repeatX.addEventListener('input', (e) => {
       repeatXValue.textContent = e.target.value;
