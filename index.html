@@ -144,201 +144,22 @@
       <label>Hauteur :</label>
       <input id="heightRange" type="range" min="0.1" max="5" step="0.1" value="1">
       <div class="value-display">Valeur: <span id="heightValue">1</span></div>
+
+      <!-- Position -->
+      <h3>Position</h3>
+      <label>X :</label>
+      <input id="positionX" type="range" min="-10" max="10" step="0.1" value="0">
+      <div class="value-display">Valeur: <span id="positionXValue">0</span></div>
+
+      <label>Y :</label>
+      <input id="positionY" type="range" min="-10" max="10" step="0.1" value="0">
+      <div class="value-display">Valeur: <span id="positionYValue">0</span></div>
+
+      <label>Z :</label>
+      <input id="positionZ" type="range" min="-10" max="10" step="0.1" value="0">
+      <div class="value-display">Valeur: <span id="positionZValue">0</span></div>
     </div>
   </div>
 
   <a-scene>
     <a-entity light="type: ambient; color: #FFF; intensity: 1"></a-entity>
-    <a-entity light="type: directional; intensity: 0.5" position="1 1 1"></a-entity>
-
-    <a-entity 
-      id="model" 
-      position="0 1 0" 
-      scale="5 5 5" 
-      rotation="0 0 0">
-    </a-entity>
-
-    <a-entity id="cameraRig" position="0 0 0">
-      <a-entity 
-        camera 
-        look-controls 
-        wasd-controls
-        position="0 1.6 2">
-      </a-entity>
-    </a-entity>
-  </a-scene>
-
-  <script>
-    // Éléments DOM
-    const modelEntity = document.querySelector('#model');
-    const modelInput = document.getElementById('modelInput');
-    const meshSelect = document.getElementById('meshSelect');
-    const showMeshNames = document.getElementById('showMeshNames');
-    const textureInput = document.getElementById('textureInput');
-    const debug = document.getElementById('debug');
-    
-    // Contrôles de dimensions
-    const orientationSelect = document.getElementById('orientationSelect');
-    const widthRange = document.getElementById('widthRange');
-    const heightRange = document.getElementById('heightRange');
-    const widthValue = document.getElementById('widthValue');
-    const heightValue = document.getElementById('heightValue');
-
-    // Contrôles de texture
-    const repeatX = document.getElementById('repeatX');
-    const repeatY = document.getElementById('repeatY');
-    const rotation = document.getElementById('rotation');
-    const repeatXValue = document.getElementById('repeatXValue');
-    const repeatYValue = document.getElementById('repeatYValue');
-    const rotationValue = document.getElementById('rotationValue');
-
-    let currentTexture = null;
-    let selectedMesh = null;
-
-    // Chargement du modèle
-    modelInput.addEventListener('change', (event) => {
-      const file = event.target.files[0];
-      if (file) {
-        const modelUrl = URL.createObjectURL(file);
-        modelEntity.setAttribute('gltf-model', modelUrl);
-
-        // Mettre à jour la liste des meshes après le chargement
-        modelEntity.addEventListener('model-loaded', updateMeshList);
-      }
-    });
-
-    // Afficher les noms des meshes
-    showMeshNames.addEventListener('click', () => {
-      const model = modelEntity.getObject3D('mesh');
-      if (model) {
-        debug.innerHTML = '';
-        model.traverse((node) => {
-          if (node.isMesh) {
-            debug.innerHTML += `Mesh trouvé: ${node.name}<br>`;
-          }
-        });
-      }
-    });
-
-    // Mise à jour de la liste des meshes
-    function updateMeshList() {
-      const model = modelEntity.getObject3D('mesh');
-      meshSelect.innerHTML = '<option value="">Sélectionnez un mesh</option>';
-      
-      if (model) {
-        model.traverse((node) => {
-          if (node.isMesh) {
-            const option = document.createElement('option');
-            option.value = node.name;
-            option.textContent = node.name;
-            meshSelect.appendChild(option);
-          }
-        });
-      }
-    }
-
-    // Application de la texture
-    textureInput.addEventListener('change', (event) => {
-      const file = event.target.files[0];
-      if (file) {
-        const textureUrl = URL.createObjectURL(file);
-        const loader = new THREE.TextureLoader();
-        
-        loader.load(textureUrl, (texture) => {
-          currentTexture = texture;
-          currentTexture.wrapS = THREE.RepeatWrapping;
-          currentTexture.wrapT = THREE.RepeatWrapping;
-          updateTextureSettings();
-          applyTexture();
-        });
-      }
-    });
-
-    // Mise à jour des paramètres de texture
-    function updateTextureSettings() {
-      if (currentTexture) {
-        currentTexture.repeat.set(
-          parseFloat(repeatX.value),
-          parseFloat(repeatY.value)
-        );
-        currentTexture.rotation = parseFloat(rotation.value) * Math.PI / 180;
-        currentTexture.needsUpdate = true;
-      }
-    }
-
-    // Application de la texture au mesh sélectionné
-    function applyTexture() {
-      const model = modelEntity.getObject3D('mesh');
-      const selectedMeshName = meshSelect.value;
-
-      if (model && currentTexture) {
-        model.traverse((node) => {
-          if (node.isMesh && (selectedMeshName === '' || node.name === selectedMeshName)) {
-            if (!node.material.map) {
-              node.material = new THREE.MeshStandardMaterial();
-            }
-            node.material.map = currentTexture;
-            node.material.needsUpdate = true;
-          }
-        });
-      }
-    }
-
-    // Event listeners pour les contrôles de texture
-    repeatX.addEventListener('input', (e) => {
-      repeatXValue.textContent = e.target.value;
-      updateTextureSettings();
-    });
-
-    repeatY.addEventListener('input', (e) => {
-      repeatYValue.textContent = e.target.value;
-      updateTextureSettings();
-    });
-
-    rotation.addEventListener('input', (e) => {
-      rotationValue.textContent = e.target.value;
-      updateTextureSettings();
-    });
-
-    meshSelect.addEventListener('change', applyTexture);
-
-    // Gestion des dimensions
-    let textureWidth = 1;
-    let textureHeight = 1;
-    let textureOrientation = 'horizontal';
-
-    widthRange.addEventListener('input', (e) => {
-      textureWidth = parseFloat(e.target.value);
-      widthValue.textContent = textureWidth.toFixed(1);
-      updateDimensions();
-    });
-
-    heightRange.addEventListener('input', (e) => {
-      textureHeight = parseFloat(e.target.value);
-      heightValue.textContent = textureHeight.toFixed(1);
-      updateDimensions();
-    });
-
-    orientationSelect.addEventListener('change', () => {
-      textureOrientation = orientationSelect.value;
-      updateDimensions();
-    });
-
-    function updateDimensions() {
-      const model = modelEntity.getObject3D('mesh');
-      if (model) {
-        model.traverse((child) => {
-          if (child.isMesh) {
-            child.scale.set(textureWidth, textureHeight, 1);
-            if (textureOrientation === 'vertical') {
-              child.rotation.set(Math.PI / 2, 0, 0);
-            } else {
-              child.rotation.set(0, 0, 0);
-            }
-          }
-        });
-      }
-    }
-  </script>
-</body>
-</html>
