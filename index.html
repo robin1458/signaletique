@@ -3,14 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Visualiseur GLB Amélioré</title>
+  <title>Visualiseur GLB avec Texture</title>
   <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
   <style>
     body {
       margin: 0;
       overflow: hidden;
       font-family: Arial, sans-serif;
-      background: #f2f2f2;
     }
 
     .controls {
@@ -49,69 +48,44 @@
       color: #fff;
       display: block;
       margin-bottom: 8px;
-      font-weight: bold;
     }
 
-    input[type="file"] {
+    input[type="file"], select, button {
       width: 100%;
       padding: 8px;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-      cursor: pointer;
-      background: white;
-    }
-
-    select {
-      width: 100%;
-      padding: 8px;
+      margin-bottom: 10px;
       border-radius: 4px;
       border: 1px solid #ccc;
       background: white;
+    }
+
+    button {
+      background: #4CAF50;
+      color: white;
+      border: none;
       cursor: pointer;
+    }
+
+    button:hover {
+      background: #45a049;
     }
 
     input[type="range"] {
       width: 100%;
-      margin-top: 8px;
-      cursor: pointer;
-    }
-
-    input[type="color"] {
-      width: 50px;
-      height: 30px;
-      padding: 0;
-      border: none;
-      margin-left: 10px;
-      vertical-align: middle;
-    }
-
-    .range-labels {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 4px;
-    }
-
-    .range-labels span {
-      color: #fff;
-      font-size: 12px;
+      margin: 8px 0;
     }
 
     .value-display {
       color: #fff;
       text-align: center;
-      margin-top: 5px;
+      margin: 5px 0;
       font-size: 14px;
     }
 
-    .light-control {
-      display: flex;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-
-    .light-control label {
-      margin-bottom: 0;
-      flex: 1;
+    #debug {
+      color: #fff;
+      margin-top: 10px;
+      font-family: monospace;
     }
   </style>
 </head>
@@ -119,74 +93,63 @@
   <div class="controls">
     <h2>Contrôles du modèle</h2>
     
-    <!-- Section Import -->
+    <!-- Import du modèle -->
     <div class="control-section">
       <label for="modelInput">Importer un modèle GLB :</label>
       <input id="modelInput" type="file" accept=".glb">
     </div>
 
-    <!-- Section Dimensions -->
+    <!-- Sélection et debug des meshes -->
+    <div class="control-section">
+      <h3>Meshes</h3>
+      <button id="showMeshNames">Afficher les noms des meshes</button>
+      <select id="meshSelect">
+        <option value="">Sélectionnez un mesh</option>
+      </select>
+      <div id="debug"></div>
+    </div>
+
+    <!-- Texture -->
+    <div class="control-section">
+      <h3>Texture</h3>
+      <label for="textureInput">Importer une texture :</label>
+      <input id="textureInput" type="file" accept="image/*">
+      
+      <label>Répétition X:</label>
+      <input id="repeatX" type="range" min="0.1" max="5" step="0.1" value="1">
+      <div class="value-display">Valeur: <span id="repeatXValue">1</span></div>
+
+      <label>Répétition Y:</label>
+      <input id="repeatY" type="range" min="0.1" max="5" step="0.1" value="1">
+      <div class="value-display">Valeur: <span id="repeatYValue">1</span></div>
+
+      <label>Rotation (degrés):</label>
+      <input id="rotation" type="range" min="0" max="360" step="1" value="0">
+      <div class="value-display">Valeur: <span id="rotationValue">0</span></div>
+    </div>
+
+    <!-- Dimensions -->
     <div class="control-section">
       <h3>Dimensions</h3>
-      <label for="widthRange">Largeur :</label>
-      <input id="widthRange" type="range" min="0.1" max="5" step="0.1" value="1">
-      <div class="value-display">Valeur: <span id="widthValue">1</span></div>
-
-      <label for="heightRange">Hauteur :</label>
-      <input id="heightRange" type="range" min="0.1" max="5" step="0.1" value="1">
-      <div class="value-display">Valeur: <span id="heightValue">1</span></div>
-
       <label for="orientationSelect">Orientation :</label>
       <select id="orientationSelect">
         <option value="horizontal">Horizontal</option>
         <option value="vertical">Vertical</option>
       </select>
-    </div>
 
-    <!-- Section Éclairage -->
-    <div class="control-section">
-      <h3>Éclairage</h3>
-      
-      <!-- Lumière ambiante -->
-      <div class="light-control">
-        <label for="ambientIntensity">Intensité ambiante:</label>
-        <input id="ambientIntensity" type="range" min="0" max="2" step="0.1" value="1">
-        <input id="ambientColor" type="color" value="#ffffff">
-      </div>
-      
-      <!-- Lumière directionnelle -->
-      <div class="light-control">
-        <label for="directionalIntensity">Intensité directionnelle:</label>
-        <input id="directionalIntensity" type="range" min="0" max="2" step="0.1" value="0.5">
-        <input id="directionalColor" type="color" value="#ffffff">
-      </div>
+      <label>Largeur :</label>
+      <input id="widthRange" type="range" min="0.1" max="5" step="0.1" value="1">
+      <div class="value-display">Valeur: <span id="widthValue">1</span></div>
 
-      <!-- Position lumière directionnelle -->
-      <label>Position lumière directionnelle:</label>
-      <input id="lightX" type="range" min="-5" max="5" step="0.1" value="1">
-      <div class="value-display">X: <span id="lightXValue">1</span></div>
-      <input id="lightY" type="range" min="-5" max="5" step="0.1" value="1">
-      <div class="value-display">Y: <span id="lightYValue">1</span></div>
-      <input id="lightZ" type="range" min="-5" max="5" step="0.1" value="1">
-      <div class="value-display">Z: <span id="lightZValue">1</span></div>
-    </div>
-
-    <!-- Section Rendu -->
-    <div class="control-section">
-      <h3>Rendu</h3>
-      <label for="metallicRange">Métallique:</label>
-      <input id="metallicRange" type="range" min="0" max="1" step="0.1" value="0">
-      <div class="value-display">Valeur: <span id="metallicValue">0</span></div>
-
-      <label for="roughnessRange">Rugosité:</label>
-      <input id="roughnessRange" type="range" min="0" max="1" step="0.1" value="0.5">
-      <div class="value-display">Valeur: <span id="roughnessValue">0.5</span></div>
+      <label>Hauteur :</label>
+      <input id="heightRange" type="range" min="0.1" max="5" step="0.1" value="1">
+      <div class="value-display">Valeur: <span id="heightValue">1</span></div>
     </div>
   </div>
 
   <a-scene>
-    <a-entity id="ambient-light" light="type: ambient; color: #FFF; intensity: 1"></a-entity>
-    <a-entity id="directional-light" light="type: directional; intensity: 0.5; color: #FFF" position="1 1 1"></a-entity>
+    <a-entity light="type: ambient; color: #FFF; intensity: 1"></a-entity>
+    <a-entity light="type: directional; intensity: 0.5" position="1 1 1"></a-entity>
 
     <a-entity 
       id="model" 
@@ -200,8 +163,7 @@
         camera 
         look-controls 
         wasd-controls
-        position="0 1.6 2" 
-        id="camera">
+        position="0 1.6 2">
       </a-entity>
     </a-entity>
   </a-scene>
@@ -210,48 +172,141 @@
     // Éléments DOM
     const modelEntity = document.querySelector('#model');
     const modelInput = document.getElementById('modelInput');
-    const ambientLight = document.querySelector('#ambient-light');
-    const directionalLight = document.querySelector('#directional-light');
+    const meshSelect = document.getElementById('meshSelect');
+    const showMeshNames = document.getElementById('showMeshNames');
+    const textureInput = document.getElementById('textureInput');
+    const debug = document.getElementById('debug');
     
-    // Contrôles de base
+    // Contrôles de dimensions
     const orientationSelect = document.getElementById('orientationSelect');
     const widthRange = document.getElementById('widthRange');
     const heightRange = document.getElementById('heightRange');
     const widthValue = document.getElementById('widthValue');
     const heightValue = document.getElementById('heightValue');
 
-    // Contrôles d'éclairage
-    const ambientIntensity = document.getElementById('ambientIntensity');
-    const ambientColor = document.getElementById('ambientColor');
-    const directionalIntensity = document.getElementById('directionalIntensity');
-    const directionalColor = document.getElementById('directionalColor');
-    const lightX = document.getElementById('lightX');
-    const lightY = document.getElementById('lightY');
-    const lightZ = document.getElementById('lightZ');
-    const lightXValue = document.getElementById('lightXValue');
-    const lightYValue = document.getElementById('lightYValue');
-    const lightZValue = document.getElementById('lightZValue');
+    // Contrôles de texture
+    const repeatX = document.getElementById('repeatX');
+    const repeatY = document.getElementById('repeatY');
+    const rotation = document.getElementById('rotation');
+    const repeatXValue = document.getElementById('repeatXValue');
+    const repeatYValue = document.getElementById('repeatYValue');
+    const rotationValue = document.getElementById('rotationValue');
 
-    // Contrôles de rendu
-    const metallicRange = document.getElementById('metallicRange');
-    const roughnessRange = document.getElementById('roughnessRange');
-    const metallicValue = document.getElementById('metallicValue');
-    const roughnessValue = document.getElementById('roughnessValue');
-    
-    let textureWidth = 1;
-    let textureHeight = 1;
-    let textureOrientation = 'horizontal';
+    let currentTexture = null;
+    let selectedMesh = null;
 
-    // Chargement du modèle GLB
+    // Chargement du modèle
     modelInput.addEventListener('change', (event) => {
       const file = event.target.files[0];
       if (file) {
         const modelUrl = URL.createObjectURL(file);
         modelEntity.setAttribute('gltf-model', modelUrl);
+
+        // Mettre à jour la liste des meshes après le chargement
+        modelEntity.addEventListener('model-loaded', updateMeshList);
       }
     });
 
+    // Afficher les noms des meshes
+    showMeshNames.addEventListener('click', () => {
+      const model = modelEntity.getObject3D('mesh');
+      if (model) {
+        debug.innerHTML = '';
+        model.traverse((node) => {
+          if (node.isMesh) {
+            debug.innerHTML += `Mesh trouvé: ${node.name}<br>`;
+          }
+        });
+      }
+    });
+
+    // Mise à jour de la liste des meshes
+    function updateMeshList() {
+      const model = modelEntity.getObject3D('mesh');
+      meshSelect.innerHTML = '<option value="">Sélectionnez un mesh</option>';
+      
+      if (model) {
+        model.traverse((node) => {
+          if (node.isMesh) {
+            const option = document.createElement('option');
+            option.value = node.name;
+            option.textContent = node.name;
+            meshSelect.appendChild(option);
+          }
+        });
+      }
+    }
+
+    // Application de la texture
+    textureInput.addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const textureUrl = URL.createObjectURL(file);
+        const loader = new THREE.TextureLoader();
+        
+        loader.load(textureUrl, (texture) => {
+          currentTexture = texture;
+          currentTexture.wrapS = THREE.RepeatWrapping;
+          currentTexture.wrapT = THREE.RepeatWrapping;
+          updateTextureSettings();
+          applyTexture();
+        });
+      }
+    });
+
+    // Mise à jour des paramètres de texture
+    function updateTextureSettings() {
+      if (currentTexture) {
+        currentTexture.repeat.set(
+          parseFloat(repeatX.value),
+          parseFloat(repeatY.value)
+        );
+        currentTexture.rotation = parseFloat(rotation.value) * Math.PI / 180;
+        currentTexture.needsUpdate = true;
+      }
+    }
+
+    // Application de la texture au mesh sélectionné
+    function applyTexture() {
+      const model = modelEntity.getObject3D('mesh');
+      const selectedMeshName = meshSelect.value;
+
+      if (model && currentTexture) {
+        model.traverse((node) => {
+          if (node.isMesh && (selectedMeshName === '' || node.name === selectedMeshName)) {
+            if (!node.material.map) {
+              node.material = new THREE.MeshStandardMaterial();
+            }
+            node.material.map = currentTexture;
+            node.material.needsUpdate = true;
+          }
+        });
+      }
+    }
+
+    // Event listeners pour les contrôles de texture
+    repeatX.addEventListener('input', (e) => {
+      repeatXValue.textContent = e.target.value;
+      updateTextureSettings();
+    });
+
+    repeatY.addEventListener('input', (e) => {
+      repeatYValue.textContent = e.target.value;
+      updateTextureSettings();
+    });
+
+    rotation.addEventListener('input', (e) => {
+      rotationValue.textContent = e.target.value;
+      updateTextureSettings();
+    });
+
+    meshSelect.addEventListener('change', applyTexture);
+
     // Gestion des dimensions
+    let textureWidth = 1;
+    let textureHeight = 1;
+    let textureOrientation = 'horizontal';
+
     widthRange.addEventListener('input', (e) => {
       textureWidth = parseFloat(e.target.value);
       widthValue.textContent = textureWidth.toFixed(1);
@@ -268,75 +323,6 @@
       textureOrientation = orientationSelect.value;
       updateDimensions();
     });
-
-    // Gestion de l'éclairage
-    ambientIntensity.addEventListener('input', (e) => {
-      ambientLight.setAttribute('light', {
-        intensity: parseFloat(e.target.value),
-        color: ambientColor.value
-      });
-    });
-
-    ambientColor.addEventListener('input', (e) => {
-      ambientLight.setAttribute('light', {
-        color: e.target.value,
-        intensity: parseFloat(ambientIntensity.value)
-      });
-    });
-
-    directionalIntensity.addEventListener('input', (e) => {
-      directionalLight.setAttribute('light', {
-        intensity: parseFloat(e.target.value),
-        color: directionalColor.value
-      });
-    });
-
-    directionalColor.addEventListener('input', (e) => {
-      directionalLight.setAttribute('light', {
-        color: e.target.value,
-        intensity: parseFloat(directionalIntensity.value)
-      });
-    });
-
-    // Position de la lumière directionnelle
-    lightX.addEventListener('input', updateLightPosition);
-    lightY.addEventListener('input', updateLightPosition);
-    lightZ.addEventListener('input', updateLightPosition);
-
-    function updateLightPosition() {
-      const x = parseFloat(lightX.value);
-      const y = parseFloat(lightY.value);
-      const z = parseFloat(lightZ.value);
-      
-      lightXValue.textContent = x.toFixed(1);
-      lightYValue.textContent = y.toFixed(1);
-      lightZValue.textContent = z.toFixed(1);
-      
-      directionalLight.setAttribute('position', {x, y, z});
-    }
-
-    // Gestion du rendu des matériaux
-    metallicRange.addEventListener('input', updateMaterialProperties);
-    roughnessRange.addEventListener('input', updateMaterialProperties);
-
-    function updateMaterialProperties() {
-      const metallic = parseFloat(metallicRange.value);
-      const roughness = parseFloat(roughnessRange.value);
-      
-      metallicValue.textContent = metallic.toFixed(1);
-      roughnessValue.textContent = roughness.toFixed(1);
-
-      const model = modelEntity.getObject3D('mesh');
-      if (model) {
-        model.traverse((node) => {
-          if (node.isMesh) {
-            node.material.metalness = metallic;
-            node.material.roughness = roughness;
-            node.material.needsUpdate = true;
-          }
-        });
-      }
-    }
 
     function updateDimensions() {
       const model = modelEntity.getObject3D('mesh');
