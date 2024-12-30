@@ -279,44 +279,39 @@
     });
 
     // Mise à jour des paramètres de texture
-    function updateTextureSettings() {
-      if (currentTexture) {
-        currentTexture.repeat.set(
-          parseFloat(repeatX.value),
-          parseFloat(repeatY.value)
-        );
-        currentTexture.rotation = parseFloat(rotation.value) * Math.PI / 180;
-        currentTexture.offset.set(
-          parseFloat(offsetX.value),
-          parseFloat(offsetY.value)
-        );
-        // Ajout pour l'échelle UV
-        currentTexture.matrix = new THREE.Matrix3().scale(
-          parseFloat(scaleUVX.value),
-          parseFloat(scaleUVY.value)
-        );
-        currentTexture.needsUpdate = true;
-      }
-    }
-
-    // Application de la texture au mesh sélectionné
-    function applyTexture() {
+  function updateTextureSettings() {
+    if (currentTexture) {
+      currentTexture.repeat.set(
+        parseFloat(repeatX.value),
+        parseFloat(repeatY.value)
+      );
+      currentTexture.rotation = parseFloat(rotation.value) * Math.PI / 180;
+      currentTexture.offset.set(
+        parseFloat(offsetX.value),
+        parseFloat(offsetY.value)
+      );
+      
       const model = modelEntity.getObject3D('mesh');
-      const selectedMeshName = meshSelect.value;
-
-      if (model && currentTexture) {
+      if (model) {
         model.traverse((node) => {
-          if (node.isMesh && (selectedMeshName === '' || node.name === selectedMeshName)) {
-            if (!node.material.map) {
-              node.material = new THREE.MeshStandardMaterial();
+          if (node.isMesh) {
+            const scaleX = parseFloat(scaleUVX.value);
+            const scaleY = parseFloat(scaleUVY.value);
+            if (node.geometry.attributes.uv) {
+              const uvArray = node.geometry.attributes.uv.array;
+              for (let i = 0; i < uvArray.length; i += 2) {
+                uvArray[i] *= scaleX;   // Scale UV X
+                uvArray[i + 1] *= scaleY; // Scale UV Y
+              }
+              node.geometry.attributes.uv.needsUpdate = true;
             }
-            node.material.map = currentTexture;
-            node.material.needsUpdate = true;
           }
         });
       }
+      
+      currentTexture.needsUpdate = true;
     }
-
+  }
     // Event listeners pour les contrôles de texture
     repeatX.addEventListener('input', (e) => {
       repeatXValue.textContent = e.target.value;
