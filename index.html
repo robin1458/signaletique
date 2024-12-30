@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Visualiseur GLB avec Effets Post-Processing</title>
-  <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+  <title>Afficheur Three.js Complet</title>
   <script src="https://cdn.jsdelivr.net/npm/three@0.151.0/build/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.151.0/examples/js/postprocessing/EffectComposer.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.151.0/examples/js/postprocessing/RenderPass.js"></script>
@@ -19,191 +18,82 @@
       font-family: Arial, sans-serif;
       background: #f2f2f2;
     }
-
-    .controls {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      background: rgba(128, 128, 128, 0.8);
-      padding: 20px;
-      border-radius: 5px;
-      z-index: 10;
-      width: 250px;
-    }
-
-    h2 {
-      font-size: 20px;
-      color: #fff;
-      text-align: center;
-    }
-
-    .file-upload, .orientation, .dimensions, .effects {
-      margin-top: 15px;
-    }
-
-    label {
-      color: #fff;
-      display: block;
-      margin-bottom: 5px;
-    }
-
-    input[type="file"], select, input[type="range"], input[type="checkbox"] {
-      width: 100%;
-      padding: 5px;
-      border-radius: 3px;
-      border: 1px solid #ccc;
-      cursor: pointer;
-    }
-
-    .range-labels {
-      display: flex;
-      justify-content: space-between;
-    }
-
-    .range-labels span {
-      color: #fff;
-    }
   </style>
 </head>
 <body>
-  <!-- Interface de contrôle -->
-  <div class="controls">
-    <h2>Film Signalétique</h2>
-    <div class="file-upload">
-      <label for="textureInput">Importer votre film :</label>
-      <input id="textureInput" type="file" accept="image/*">
-    </div>
-
-    <div class="orientation">
-      <label for="orientationSelect">Orientation :</label>
-      <select id="orientationSelect">
-        <option value="horizontal">Horizontal</option>
-        <option value="vertical">Vertical</option>
-      </select>
-    </div>
-
-    <div class="dimensions">
-      <label for="widthRange">Largeur :</label>
-      <input id="widthRange" type="range" min="0.1" max="5" step="0.1" value="1">
-      <div class="range-labels">
-        <span>0.1</span><span>5</span>
-      </div>
-
-      <label for="heightRange">Hauteur :</label>
-      <input id="heightRange" type="range" min="0.1" max="5" step="0.1" value="1">
-      <div class="range-labels">
-        <span>0.1</span><span>5</span>
-      </div>
-    </div>
-
-    <div class="effects">
-      <label for="bloomSlider">Intensité Bloom :</label>
-      <input id="bloomSlider" type="range" min="0" max="2" step="0.1" value="0.5">
-
-      <label for="glitchCheckbox">Activer Glitch :</label>
-      <input id="glitchCheckbox" type="checkbox">
-    </div>
-  </div>
-
-  <!-- Scène A-Frame -->
-  <a-scene>
-    <!-- Lumières -->
-    <a-entity light="type: ambient; color: #FFF; intensity: 1"></a-entity>
-    <a-entity light="type: directional; intensity: 0.5" position="1 1 1"></a-entity>
-
-    <!-- Charger et afficher le modèle GLB -->
-    <a-entity id="model" gltf-model="url(testawa.glb)" position="0 1 0" scale="5 5 5" rotation="0 0 0"></a-entity>
-
-    <!-- Caméra avec contrôle utilisateur -->
-    <a-entity id="cameraRig" position="0 0 0">
-      <a-entity camera look-controls position="0 1.6 2" id="camera"></a-entity>
-    </a-entity>
-  </a-scene>
 
   <script>
-    // Sélection des éléments
-    const modelEntity = document.querySelector('#model');
-    const textureInput = document.getElementById('textureInput');
-    const orientationSelect = document.getElementById('orientationSelect');
-    const widthRange = document.getElementById('widthRange');
-    const heightRange = document.getElementById('heightRange');
-    const bloomSlider = document.getElementById('bloomSlider');
-    const glitchCheckbox = document.getElementById('glitchCheckbox');
-
-    // Variables pour la texture et les effets
-    let textureUrl = '';
-    let textureWidth = 1;
-    let textureHeight = 1;
-    let textureOrientation = 'horizontal';
-    let bloomStrength = 0.5;
-    let glitchEnabled = false;
-
-    // Appliquer la texture et ajuster selon l'orientation et les dimensions
-    textureInput.addEventListener('change', (event) => {
-      const file = event.target.files[0];
-      if (file) {
-        textureUrl = URL.createObjectURL(file);
-        modelEntity.addEventListener('loaded', () => {
-          const model = modelEntity.getObject3D('mesh');
-          if (model) {
-            model.traverse((child) => {
-              if (child.isMesh && child.name === "44854-CORP PO 70-65-746 CL-1") {
-                child.material.map = new THREE.TextureLoader().load(textureUrl);
-                child.material.needsUpdate = true;
-                child.scale.set(textureWidth, textureHeight, 1);
-                if (textureOrientation === 'vertical') {
-                  child.rotation.set(Math.PI / 2, 0, 0);
-                } else {
-                  child.rotation.set(0, 0, 0);
-                }
-              }
-            });
-          }
-        });
-      }
-    });
-
-    // Mise à jour des dimensions et orientation de la texture
-    widthRange.addEventListener('input', () => {
-      textureWidth = parseFloat(widthRange.value);
-      updateTextureDimensions();
-    });
-
-    heightRange.addEventListener('input', () => {
-      textureHeight = parseFloat(heightRange.value);
-      updateTextureDimensions();
-    });
-
-    orientationSelect.addEventListener('change', () => {
-      textureOrientation = orientationSelect.value;
-      updateTextureDimensions();
-    });
-
-    // Fonction pour mettre à jour les dimensions et l'orientation du modèle
-    function updateTextureDimensions() {
-      if (modelEntity) {
-        const model = modelEntity.getObject3D('mesh');
-        if (model) {
-          model.traverse((child) => {
-            if (child.isMesh) {
-              child.scale.set(textureWidth, textureHeight, 1);
-              if (textureOrientation === 'vertical') {
-                child.rotation.set(Math.PI / 2, 0, 0);
-              } else {
-                child.rotation.set(0, 0, 0);
-              }
-            }
-          });
-        }
-      }
-    }
-
-    // Post-processing avec Three.js
+    // Variables de scène
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer();
     document.body.appendChild(renderer.domElement);
 
+    // Paramètres de l'effet de post-processing
     const composer = new THREE.EffectComposer(renderer);
     const renderPass = new THREE.RenderPass(scene, camera);
-    composer.addPass(render
+    composer.addPass(renderPass);
+
+    // Effet Bloom
+    const bloomPass = new THREE.BloomPass(1.5);
+    composer.addPass(bloomPass);
+
+    // Effet Glitch
+    const glitchPass = new THREE.GlitchPass();
+    composer.addPass(glitchPass);
+
+    // Effet de copie
+    const copyPass = new THREE.ShaderPass(THREE.CopyShader);
+    composer.addPass(copyPass);
+
+    // Lumières
+    const ambientLight = new THREE.AmbientLight(0x404040, 1);  // Lumière ambiante
+    scene.add(ambientLight);
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    directionalLight.position.set(5, 5, 5);
+    scene.add(directionalLight);
+
+    // Chargement du modèle GLB
+    const loader = new THREE.GLTFLoader();
+    loader.load('testawa.glb', (gltf) => {
+      const model = gltf.scene;
+      model.scale.set(1, 1, 1);
+      scene.add(model);
+    });
+
+    // Mise à jour de la caméra et ajustement pour le rendu
+    camera.position.z = 5;
+
+    // Ajout des contrôles utilisateur (zoom et rotation)
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableZoom = true;
+
+    // Gestion du redimensionnement de la fenêtre
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // Animation de la scène
+    function animate() {
+      requestAnimationFrame(animate);
+
+      // Rotation de la scène pour des effets dynamiques
+      scene.rotation.x += 0.005;
+      scene.rotation.y += 0.005;
+
+      // Rendu de la scène avec effets de post-processing
+      composer.render();
+    }
+
+    // Lancer l'animation
+    animate();
+
+    // Initialisation du rendu
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  </script>
+
+</body>
+</html>
