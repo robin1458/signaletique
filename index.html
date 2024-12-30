@@ -21,16 +21,21 @@
       padding: 20px;
       border-radius: 8px;
       z-index: 10;
-      width: 280px;
+      width: 300px;
+      max-height: 90vh;
+      overflow-y: auto;
       box-shadow: 0 2px 10px rgba(0,0,0,0.2);
     }
 
-    h2 {
-      font-size: 20px;
+    h2, h3 {
       color: #fff;
       text-align: center;
-      margin-top: 0;
-      margin-bottom: 15px;
+      margin: 0 0 15px 0;
+    }
+
+    h3 {
+      font-size: 16px;
+      margin-top: 15px;
     }
 
     .control-section {
@@ -71,6 +76,15 @@
       cursor: pointer;
     }
 
+    input[type="color"] {
+      width: 50px;
+      height: 30px;
+      padding: 0;
+      border: none;
+      margin-left: 10px;
+      vertical-align: middle;
+    }
+
     .range-labels {
       display: flex;
       justify-content: space-between;
@@ -88,23 +102,40 @@
       margin-top: 5px;
       font-size: 14px;
     }
+
+    .light-control {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .light-control label {
+      margin-bottom: 0;
+      flex: 1;
+    }
   </style>
 </head>
 <body>
   <div class="controls">
     <h2>Contrôles du modèle</h2>
     
+    <!-- Section Import -->
     <div class="control-section">
       <label for="modelInput">Importer un modèle GLB :</label>
       <input id="modelInput" type="file" accept=".glb">
     </div>
 
+    <!-- Section Dimensions -->
     <div class="control-section">
-      <label for="textureInput">Importer une texture :</label>
-      <input id="textureInput" type="file" accept="image/*">
-    </div>
+      <h3>Dimensions</h3>
+      <label for="widthRange">Largeur :</label>
+      <input id="widthRange" type="range" min="0.1" max="5" step="0.1" value="1">
+      <div class="value-display">Valeur: <span id="widthValue">1</span></div>
 
-    <div class="control-section">
+      <label for="heightRange">Hauteur :</label>
+      <input id="heightRange" type="range" min="0.1" max="5" step="0.1" value="1">
+      <div class="value-display">Valeur: <span id="heightValue">1</span></div>
+
       <label for="orientationSelect">Orientation :</label>
       <select id="orientationSelect">
         <option value="horizontal">Horizontal</option>
@@ -112,28 +143,50 @@
       </select>
     </div>
 
+    <!-- Section Éclairage -->
     <div class="control-section">
-      <label for="widthRange">Largeur :</label>
-      <input id="widthRange" type="range" min="0.1" max="5" step="0.1" value="1">
-      <div class="value-display">Valeur: <span id="widthValue">1</span></div>
-      <div class="range-labels">
-        <span>0.1</span>
-        <span>5</span>
+      <h3>Éclairage</h3>
+      
+      <!-- Lumière ambiante -->
+      <div class="light-control">
+        <label for="ambientIntensity">Intensité ambiante:</label>
+        <input id="ambientIntensity" type="range" min="0" max="2" step="0.1" value="1">
+        <input id="ambientColor" type="color" value="#ffffff">
+      </div>
+      
+      <!-- Lumière directionnelle -->
+      <div class="light-control">
+        <label for="directionalIntensity">Intensité directionnelle:</label>
+        <input id="directionalIntensity" type="range" min="0" max="2" step="0.1" value="0.5">
+        <input id="directionalColor" type="color" value="#ffffff">
       </div>
 
-      <label for="heightRange">Hauteur :</label>
-      <input id="heightRange" type="range" min="0.1" max="5" step="0.1" value="1">
-      <div class="value-display">Valeur: <span id="heightValue">1</span></div>
-      <div class="range-labels">
-        <span>0.1</span>
-        <span>5</span>
-      </div>
+      <!-- Position lumière directionnelle -->
+      <label>Position lumière directionnelle:</label>
+      <input id="lightX" type="range" min="-5" max="5" step="0.1" value="1">
+      <div class="value-display">X: <span id="lightXValue">1</span></div>
+      <input id="lightY" type="range" min="-5" max="5" step="0.1" value="1">
+      <div class="value-display">Y: <span id="lightYValue">1</span></div>
+      <input id="lightZ" type="range" min="-5" max="5" step="0.1" value="1">
+      <div class="value-display">Z: <span id="lightZValue">1</span></div>
+    </div>
+
+    <!-- Section Rendu -->
+    <div class="control-section">
+      <h3>Rendu</h3>
+      <label for="metallicRange">Métallique:</label>
+      <input id="metallicRange" type="range" min="0" max="1" step="0.1" value="0">
+      <div class="value-display">Valeur: <span id="metallicValue">0</span></div>
+
+      <label for="roughnessRange">Rugosité:</label>
+      <input id="roughnessRange" type="range" min="0" max="1" step="0.1" value="0.5">
+      <div class="value-display">Valeur: <span id="roughnessValue">0.5</span></div>
     </div>
   </div>
 
   <a-scene>
-    <a-entity light="type: ambient; color: #FFF; intensity: 1"></a-entity>
-    <a-entity light="type: directional; intensity: 0.5" position="1 1 1"></a-entity>
+    <a-entity id="ambient-light" light="type: ambient; color: #FFF; intensity: 1"></a-entity>
+    <a-entity id="directional-light" light="type: directional; intensity: 0.5; color: #FFF" position="1 1 1"></a-entity>
 
     <a-entity 
       id="model" 
@@ -154,16 +207,37 @@
   </a-scene>
 
   <script>
+    // Éléments DOM
     const modelEntity = document.querySelector('#model');
     const modelInput = document.getElementById('modelInput');
-    const textureInput = document.getElementById('textureInput');
+    const ambientLight = document.querySelector('#ambient-light');
+    const directionalLight = document.querySelector('#directional-light');
+    
+    // Contrôles de base
     const orientationSelect = document.getElementById('orientationSelect');
     const widthRange = document.getElementById('widthRange');
     const heightRange = document.getElementById('heightRange');
     const widthValue = document.getElementById('widthValue');
     const heightValue = document.getElementById('heightValue');
+
+    // Contrôles d'éclairage
+    const ambientIntensity = document.getElementById('ambientIntensity');
+    const ambientColor = document.getElementById('ambientColor');
+    const directionalIntensity = document.getElementById('directionalIntensity');
+    const directionalColor = document.getElementById('directionalColor');
+    const lightX = document.getElementById('lightX');
+    const lightY = document.getElementById('lightY');
+    const lightZ = document.getElementById('lightZ');
+    const lightXValue = document.getElementById('lightXValue');
+    const lightYValue = document.getElementById('lightYValue');
+    const lightZValue = document.getElementById('lightZValue');
+
+    // Contrôles de rendu
+    const metallicRange = document.getElementById('metallicRange');
+    const roughnessRange = document.getElementById('roughnessRange');
+    const metallicValue = document.getElementById('metallicValue');
+    const roughnessValue = document.getElementById('roughnessValue');
     
-    let textureUrl = '';
     let textureWidth = 1;
     let textureHeight = 1;
     let textureOrientation = 'horizontal';
@@ -177,49 +251,94 @@
       }
     });
 
-    // Chargement et application de la texture
-    textureInput.addEventListener('change', (event) => {
-      const file = event.target.files[0];
-      if (file) {
-        textureUrl = URL.createObjectURL(file);
-        applyTextureToModel();
-      }
-    });
-
-    // Mise à jour des dimensions avec affichage des valeurs
+    // Gestion des dimensions
     widthRange.addEventListener('input', (e) => {
       textureWidth = parseFloat(e.target.value);
       widthValue.textContent = textureWidth.toFixed(1);
-      updateTextureDimensions();
+      updateDimensions();
     });
 
     heightRange.addEventListener('input', (e) => {
       textureHeight = parseFloat(e.target.value);
       heightValue.textContent = textureHeight.toFixed(1);
-      updateTextureDimensions();
+      updateDimensions();
     });
 
     orientationSelect.addEventListener('change', () => {
       textureOrientation = orientationSelect.value;
-      updateTextureDimensions();
+      updateDimensions();
     });
 
-    function applyTextureToModel() {
-      modelEntity.addEventListener('model-loaded', () => {
-        const model = modelEntity.getObject3D('mesh');
-        if (model) {
-          model.traverse((child) => {
-            if (child.isMesh) {
-              child.material.map = new THREE.TextureLoader().load(textureUrl);
-              child.material.needsUpdate = true;
-              updateTextureDimensions();
-            }
-          });
-        }
+    // Gestion de l'éclairage
+    ambientIntensity.addEventListener('input', (e) => {
+      ambientLight.setAttribute('light', {
+        intensity: parseFloat(e.target.value),
+        color: ambientColor.value
       });
+    });
+
+    ambientColor.addEventListener('input', (e) => {
+      ambientLight.setAttribute('light', {
+        color: e.target.value,
+        intensity: parseFloat(ambientIntensity.value)
+      });
+    });
+
+    directionalIntensity.addEventListener('input', (e) => {
+      directionalLight.setAttribute('light', {
+        intensity: parseFloat(e.target.value),
+        color: directionalColor.value
+      });
+    });
+
+    directionalColor.addEventListener('input', (e) => {
+      directionalLight.setAttribute('light', {
+        color: e.target.value,
+        intensity: parseFloat(directionalIntensity.value)
+      });
+    });
+
+    // Position de la lumière directionnelle
+    lightX.addEventListener('input', updateLightPosition);
+    lightY.addEventListener('input', updateLightPosition);
+    lightZ.addEventListener('input', updateLightPosition);
+
+    function updateLightPosition() {
+      const x = parseFloat(lightX.value);
+      const y = parseFloat(lightY.value);
+      const z = parseFloat(lightZ.value);
+      
+      lightXValue.textContent = x.toFixed(1);
+      lightYValue.textContent = y.toFixed(1);
+      lightZValue.textContent = z.toFixed(1);
+      
+      directionalLight.setAttribute('position', {x, y, z});
     }
 
-    function updateTextureDimensions() {
+    // Gestion du rendu des matériaux
+    metallicRange.addEventListener('input', updateMaterialProperties);
+    roughnessRange.addEventListener('input', updateMaterialProperties);
+
+    function updateMaterialProperties() {
+      const metallic = parseFloat(metallicRange.value);
+      const roughness = parseFloat(roughnessRange.value);
+      
+      metallicValue.textContent = metallic.toFixed(1);
+      roughnessValue.textContent = roughness.toFixed(1);
+
+      const model = modelEntity.getObject3D('mesh');
+      if (model) {
+        model.traverse((node) => {
+          if (node.isMesh) {
+            node.material.metalness = metallic;
+            node.material.roughness = roughness;
+            node.material.needsUpdate = true;
+          }
+        });
+      }
+    }
+
+    function updateDimensions() {
       const model = modelEntity.getObject3D('mesh');
       if (model) {
         model.traverse((child) => {
