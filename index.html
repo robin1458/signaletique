@@ -219,6 +219,40 @@
     </div>
   </div>
 
+    <div class="control-section">
+  <h3>Texture</h3>
+  <label for="textureInput">Importer une texture :</label>
+  <input id="textureInput" type="file" accept="image/*">
+  
+  <label>Répétition X:</label>
+  <input id="repeatX" type="range" min="1" max="10" step="1" value="1">
+  <div class="value-display">Valeur: <span id="repeatXValue">1</span></div>
+
+  <label>Répétition Y:</label>
+  <input id="repeatY" type="range" min="1" max="10" step="1" value="1">
+  <div class="value-display">Valeur: <span id="repeatYValue">1</span></div>
+
+  <label>Rotation (degrés):</label>
+  <input id="rotation" type="range" min="0" max="360" step="1" value="0">
+  <div class="value-display">Valeur: <span id="rotationValue">0</span></div>
+
+  <label>Offset X:</label>
+  <input id="offsetX" type="range" min="-1" max="1" step="0.01" value="0">
+  <div class="value-display">Valeur: <span id="offsetXValue">0</span></div>
+
+  <label>Offset Y:</label>
+  <input id="offsetY" type="range" min="-1" max="1" step="0.01" value="0">
+  <div class="value-display">Valeur: <span id="offsetYValue">0</span></div>
+
+  <label>Échelle UV X:</label>
+  <input id="scaleUVX" type="range" min="0.01" max="20" step="0.01" value="1">
+  <div class="value-display">Valeur: <span id="scaleUVXValue">1</span></div>
+
+  <label>Échelle UV Y:</label>
+  <input id="scaleUVY" type="range" min="0.01" max="20" step="0.01" value="1">
+  <div class="value-display">Valeur: <span id="scaleUVYValue">1</span></div>
+</div>
+
   <div class="right-controls">
     <h2>Configuration d'éclairage</h2>
     
@@ -285,14 +319,14 @@
     </a-entity>
 
     <!-- Caméra -->
-    <a-entity id="cameraRig" position="0 0 0">
-      <a-entity 
-        camera 
-        look-controls 
-        wasd-controls
-        position="0 1.6 3">
-      </a-entity>
-    </a-entity>
+    <a-entity id="cameraRig" position="0 1.6 3">
+  <a-entity 
+    camera 
+    look-controls="pointerLockEnabled: true"
+    wasd-controls="acceleration: 20"
+    position="0 0 0">
+  </a-entity>
+</a-entity>
   </a-scene>
 
   <script>
@@ -498,5 +532,137 @@
 
     // Initialisation
     updateLights();
+// Gestion des textures
+let currentTexture = null;
+let originalUVArrays = new Map();
+
+// Application de la texture
+function applyTexture() {
+  const model = modelEntity.getObject3D('mesh');
+  const selectedMeshName = elements.mesh.value;
+
+  if (model && currentTexture) {
+    model.traverse((node) => {
+      if (node.isMesh && (selectedMeshName === '' || node.name === selectedMeshName)) {
+        if (!node.material.map) {
+          node.material = new THREE.MeshStandardMaterial();
+        }
+        node.material.map = currentTexture;
+        node.material.needsUpdate = true;
+      }
+    });
+  }
+}
+
+// Chargement de la texture
+document.getElementById('textureInput').addEventListener('change', (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    const textureUrl = URL.createObjectURL(file);
+    const loader = new THREE.TextureLoader();
+    
+    loader.load(textureUrl, (texture) => {
+      currentTexture = texture;
+      // Utiliser ClampToEdgeWrapping par défaut
+      currentTexture.wrapS = THREE.ClampToEdgeWrapping;
+      currentTexture.wrapT = THREE.ClampToEdgeWrapping;
+      updateTextureSettings();
+      applyTexture();
+    });
+  }
+});
+
+// Mise à jour des paramètres de texture
+function updateTextureSettings() {
+  if (currentTexture) {
+    const repeatXValue = parseFloat(document.getElementById('repeatX').value);
+    const repeatYValue = parseFloat(document.getElementById('repeatY').value);
+    
+    if (repeatXValue === 1 && repeatYValue === 1) {
+      currentTexture.wrapS = THREE.ClampToEdgeWrapping;
+      currentTexture.wrapT = THREE.ClampToEdgeWrapping;
+      currentTexture.repeat.set(1, 1);
+    } else {
+      currentTexture.wrapS = THREE.RepeatWrapping;
+      currentTexture.wrapT = THREE.RepeatWrapping;
+      currentTexture.repeat.set(repeatXValue, repeatYValue);
+    }
+
+    currentTexture.rotation = parseFloat(document.getElementById('rotation').value) * Math.PI / 180;
+    currentTexture.offset.set(
+      parseFloat(document.getElementById('offsetX').value),
+      parseFloat(document.getElementById('offsetY').value)
+    );
+    
+    const model = modelEntity.getObject3D('mesh');
+    if (model) {
+      model.traverse((node) => {
+        if (node.isMesh) {
+          const scaleX = parseFloat(document.getElementById('scaleUVX').value);
+          const scaleY = parseFloat(document.getElementById('scaleUVY').value);
+          if (node.geometry.attributes.uv) {
+            const uvArray = node.geometry.attributes.uv.array;
+            const originalUVArray = originalUVArrays.get(node.name) || uvArray;
+            
+            for (let i = 0; i < uvArray.length; i += 2) {
+              uvArray[i] = originalUVArray[i] * scaleX;
+              uvArray[i + 1] = originalUVArray[i + 1] * scaleY;
+            }
+            node.geometry.attributes.uv.needsUpdate = true;
+          }
+        }
+      });
+    }
+    
+    currentTexture.needsUpdate = true;
+    applyTexture();
+  }
+}
+
+// Event listeners pour les contrôles de texture
+['repeatX', 'repeatY', 'rotation', 'offsetX', 'offsetY', 'scaleUVX', 'scaleUVY'].forEach(id => {
+  document.getElementById(id).addEventListener('input', (e) => {
+    document.getElementById(`${id}Value`).textContent = e.target.value;
+    updateTextureSettings();
+  });
+});
+
+// Navigation avec clavier
+document.addEventListener('keydown', (event) => {
+  const camera = document.querySelector('[camera]').object3D;
+  const speed = 0.1;
+  
+  switch(event.key) {
+    case 'ArrowUp':
+      camera.position.z -= speed;
+      break;
+    case 'ArrowDown':
+      camera.position.z += speed;
+      break;
+    case 'ArrowLeft':
+      camera.position.x -= speed;
+      break;
+    case 'ArrowRight':
+      camera.position.x += speed;
+      break;
+    case 'PageUp':
+      camera.position.y += speed;
+      break;
+    case 'PageDown':
+      camera.position.y -= speed;
+      break;
+  }
+});
+
+// Double-click pour entrer/sortir du mode pointeur verrouillé
+document.addEventListener('dblclick', () => {
+  const scene = document.querySelector('a-scene');
+  if (document.pointerLockElement) {
+    document.exitPointerLock();
+  } else {
+    scene.canvas.requestPointerLock();
+  }
+});
+    
   </script>
 </body>
