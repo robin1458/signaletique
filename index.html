@@ -200,6 +200,12 @@
       scaleY: document.getElementById('scaleY'),
       scaleZ: document.getElementById('scaleZ')
     };
+     const lights = {
+        ambient: document.querySelector('#ambientLight'),
+        main: document.querySelector('#mainLight'),
+        spot1: document.querySelector('#spotLight1'),
+        spot2: document.querySelector('#spotLight2')
+    };
 
     const textureSettings = new Map();
     let currentTexture = null;
@@ -435,6 +441,88 @@
         scene.canvas.requestPointerLock();
       }
     });
+  
+    // Mise à jour de l'éclairage ambiant
+    function updateAmbientLight() {
+        const intensity = document.getElementById('ambientIntensity').value;
+        const color = document.getElementById('ambientColor').value;
+        lights.ambient.setAttribute('light', {
+            intensity: intensity,
+            color: color
+        });
+        document.getElementById('ambientIntensityValue').textContent = intensity;
+    }
+
+    // Mise à jour de l'éclairage principal
+    function updateMainLight() {
+        const intensity = document.getElementById('mainLightIntensity').value;
+        const color = document.getElementById('mainLightColor').value;
+        const x = document.getElementById('mainLightX').value;
+        const y = document.getElementById('mainLightY').value;
+        const z = document.getElementById('mainLightZ').value;
+
+        lights.main.setAttribute('light', {
+            intensity: intensity,
+            color: color
+        });
+        lights.main.setAttribute('position', { x, y, z });
+
+        document.getElementById('mainLightIntensityValue').textContent = intensity;
+        document.getElementById('mainLightXValue').textContent = x;
+        document.getElementById('mainLightYValue').textContent = y;
+        document.getElementById('mainLightZValue').textContent = z;
+    }
+
+    // Mise à jour des spots
+    function updateSpotLights() {
+        const intensity = document.getElementById('spotIntensity').value;
+        const color = document.getElementById('spotColor').value;
+        const angle = document.getElementById('spotAngle').value;
+
+        [lights.spot1, lights.spot2].forEach(spot => {
+            spot.setAttribute('light', {
+                intensity: intensity,
+                color: color,
+                angle: angle
+            });
+        });
+
+        document.getElementById('spotIntensityValue').textContent = intensity;
+        document.getElementById('spotAngleValue').textContent = angle;
+    }
+
+    // Mise à jour des dimensions
+    function updateDimensions() {
+        const scaleX = parseFloat(elements.scaleX.value);
+        const scaleY = parseFloat(elements.scaleY.value);
+        const scaleZ = parseFloat(elements.scaleZ.value);
+        
+        modelEntity.setAttribute('scale', `${scaleX} ${scaleY} ${scaleZ}`);
+        
+        document.getElementById('scaleXValue').textContent = scaleX;
+        document.getElementById('scaleYValue').textContent = scaleY;
+        document.getElementById('scaleZValue').textContent = scaleZ;
+    }
+
+    // Event listeners pour l'éclairage
+    document.getElementById('ambientIntensity').addEventListener('input', updateAmbientLight);
+    document.getElementById('ambientColor').addEventListener('input', updateAmbientLight);
+
+    document.getElementById('mainLightIntensity').addEventListener('input', updateMainLight);
+    document.getElementById('mainLightColor').addEventListener('input', updateMainLight);
+    document.getElementById('mainLightX').addEventListener('input', updateMainLight);
+    document.getElementById('mainLightY').addEventListener('input', updateMainLight);
+    document.getElementById('mainLightZ').addEventListener('input', updateMainLight);
+
+    document.getElementById('spotIntensity').addEventListener('input', updateSpotLights);
+    document.getElementById('spotColor').addEventListener('input', updateSpotLights);
+    document.getElementById('spotAngle').addEventListener('input', updateSpotLights);
+
+    // Event listeners pour les dimensions
+    elements.scaleX.addEventListener('input', updateDimensions);
+    elements.scaleY.addEventListener('input', updateDimensions);
+    elements.scaleZ.addEventListener('input', updateDimensions);
+    
 
   </script>
 </body>
