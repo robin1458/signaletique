@@ -357,6 +357,10 @@
       spotAngle: document.getElementById('spotAngle'),
       spotColor: document.getElementById('spotColor')
     };
+    let currentTexture = null;
+    let originalUVArrays = new Map();
+    let selectedMeshMaterial = null;
+    let originalMaterials = new Map();
 
     // Chargement du modèle
     elements.model.addEventListener('change', (event) => {
