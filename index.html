@@ -6,158 +6,25 @@
   <title>Visualiseur 3D Pro - Configuration Avancée</title>
   <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
   <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #1a1a1a;
-    }
-
-    .controls {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      background: rgba(28, 32, 38, 0.95);
-      padding: 20px;
-      border-radius: 12px;
-      z-index: 10;
-      width: 280px;
-      max-height: 85vh;
-      overflow-y: auto;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-    }
-
-    .right-controls {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      background: rgba(28, 32, 38, 0.95);
-      padding: 20px;
-      border-radius: 12px;
-      z-index: 10;
-      width: 280px;
-      max-height: 85vh;
-      overflow-y: auto;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-    }
-
-    h2, h3 {
-      color: #fff;
-      text-align: center;
-      margin: 0 0 15px 0;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    h3 {
-      font-size: 16px;
-      margin-top: 20px;
-      color: #88c0d0;
-    }
-
-    .control-section {
-      margin-top: 15px;
-      padding: 15px;
-      background: rgba(255,255,255,0.05);
-      border-radius: 8px;
-      border: 1px solid rgba(255,255,255,0.1);
-    }
-
-    label {
-      color: #d8dee9;
-      display: block;
-      margin-bottom: 8px;
-      font-size: 14px;
-    }
-
-    input[type="file"], select, button {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 12px;
-      border-radius: 6px;
-      border: 1px solid #4c566a;
-      background: #2e3440;
-      color: #eceff4;
-      font-size: 14px;
-    }
-
-    button {
-      background: #5e81ac;
-      color: white;
-      border: none;
-      cursor: pointer;
-      transition: background 0.3s ease;
-      text-transform: uppercase;
-      font-weight: bold;
-      letter-spacing: 1px;
-    }
-
-    button:hover {
-      background: #81a1c1;
-    }
-
-    input[type="range"] {
-      width: 100%;
-      margin: 10px 0;
-      -webkit-appearance: none;
-      background: #3b4252;
-      border-radius: 8px;
-      height: 8px;
-    }
-
-    input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 18px;
-      height: 18px;
-      background: #88c0d0;
-      border-radius: 50%;
-      cursor: pointer;
-    }
-
-    input[type="color"] {
-      width: 100%;
-      height: 40px;
-      border-radius: 6px;
-      border: none;
-      cursor: pointer;
-    }
-
-    .value-display {
-      color: #88c0d0;
-      text-align: center;
-      margin: 5px 0 15px 0;
-      font-size: 14px;
-      font-family: monospace;
-    }
-
-    #debug {
-      color: #d8dee9;
-      margin-top: 10px;
-      font-family: monospace;
-      font-size: 12px;
-      padding: 10px;
-      background: rgba(46, 52, 64, 0.7);
-      border-radius: 4px;
-    }
-
-    /* Scrollbar personnalisée */
-    ::-webkit-scrollbar {
-      width: 8px;
-    }
-
-    ::-webkit-scrollbar-track {
-      background: #2e3440;
-      border-radius: 4px;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: #4c566a;
-      border-radius: 4px;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-      background: #5e81ac;
-    }
+    body { margin: 0; overflow: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #1a1a1a; }
+    .controls { position: absolute; top: 20px; left: 20px; background: rgba(28, 32, 38, 0.95); padding: 20px; border-radius: 12px; z-index: 10; width: 280px; max-height: 85vh; overflow-y: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+    .right-controls { position: absolute; top: 20px; right: 20px; background: rgba(28, 32, 38, 0.95); padding: 20px; border-radius: 12px; z-index: 10; width: 280px; max-height: 85vh; overflow-y: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+    h2, h3 { color: #fff; text-align: center; margin: 0 0 15px 0; text-transform: uppercase; letter-spacing: 1px; }
+    h3 { font-size: 16px; margin-top: 20px; color: #88c0d0; }
+    .control-section { margin-top: 15px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); }
+    label { color: #d8dee9; display: block; margin-bottom: 8px; font-size: 14px; }
+    input[type="file"], select, button { width: 100%; padding: 10px; margin-bottom: 12px; border-radius: 6px; border: 1px solid #4c566a; background: #2e3440; color: #eceff4; font-size: 14px; }
+    button { background: #5e81ac; color: white; border: none; cursor: pointer; transition: background 0.3s ease; text-transform: uppercase; font-weight: bold; letter-spacing: 1px; }
+    button:hover { background: #81a1c1; }
+    input[type="range"] { width: 100%; margin: 10px 0; -webkit-appearance: none; background: #3b4252; border-radius: 8px; height: 8px; }
+    input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; background: #88c0d0; border-radius: 50%; cursor: pointer; }
+    input[type="color"] { width: 100%; height: 40px; border-radius: 6px; border: none; cursor: pointer; }
+    .value-display { color: #88c0d0; text-align: center; margin: 5px 0 15px 0; font-size: 14px; font-family: monospace; }
+    #debug { color: #d8dee9; margin-top: 10px; font-family: monospace; font-size: 12px; padding: 10px; background: rgba(46, 52, 64, 0.7); border-radius: 4px; }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #2e3440; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb { background: #4c566a; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #5e81ac; }
   </style>
 </head>
 <body>
@@ -217,42 +84,41 @@
       <input id="scaleZ" type="range" min="0.1" max="5" step="0.1" value="1">
       <div class="value-display">Valeur: <span id="scaleZValue">1</span></div>
     </div>
- <div class="control-section">
-  <h3>Texture</h3>
-  <label for="textureInput">Importer une texture :</label>
-  <input id="textureInput" type="file" accept="image/*">
-  
-  <label>Répétition X:</label>
-  <input id="repeatX" type="range" min="1" max="10" step="1" value="1">
-  <div class="value-display">Valeur: <span id="repeatXValue">1</span></div>
 
-  <label>Répétition Y:</label>
-  <input id="repeatY" type="range" min="1" max="10" step="1" value="1">
-  <div class="value-display">Valeur: <span id="repeatYValue">1</span></div>
+    <div class="control-section">
+      <h3>Texture</h3>
+      <label for="textureInput">Importer une texture :</label>
+      <input id="textureInput" type="file" accept="image/*">
+      
+      <label>Répétition X:</label>
+      <input id="repeatX" type="range" min="1" max="10" step="1" value="1">
+      <div class="value-display">Valeur: <span id="repeatXValue">1</span></div>
 
-  <label>Rotation (degrés):</label>
-  <input id="rotation" type="range" min="0" max="360" step="1" value="0">
-  <div class="value-display">Valeur: <span id="rotationValue">0</span></div>
+      <label>Répétition Y:</label>
+      <input id="repeatY" type="range" min="1" max="10" step="1" value="1">
+      <div class="value-display">Valeur: <span id="repeatYValue">1</span></div>
 
-  <label>Offset X:</label>
-  <input id="offsetX" type="range" min="-1" max="1" step="0.01" value="0">
-  <div class="value-display">Valeur: <span id="offsetXValue">0</span></div>
+      <label>Rotation (degrés):</label>
+      <input id="rotation" type="range" min="0" max="360" step="1" value="0">
+      <div class="value-display">Valeur: <span id="rotationValue">0</span></div>
 
-  <label>Offset Y:</label>
-  <input id="offsetY" type="range" min="-1" max="1" step="0.01" value="0">
-  <div class="value-display">Valeur: <span id="offsetYValue">0</span></div>
+      <label>Offset X:</label>
+      <input id="offsetX" type="range" min="-1" max="1" step="0.01" value="0">
+      <div class="value-display">Valeur: <span id="offsetXValue">0</span></div>
 
-  <label>Échelle UV X:</label>
-  <input id="scaleUVX" type="range" min="0.01" max="20" step="0.01" value="1">
-  <div class="value-display">Valeur: <span id="scaleUVXValue">1</span></div>
+      <label>Offset Y:</label>
+      <input id="offsetY" type="range" min="-1" max="1" step="0.01" value="0">
+      <div class="value-display">Valeur: <span id="offsetYValue">0</span></div>
 
-  <label>Échelle UV Y:</label>
-  <input id="scaleUVY" type="range" min="0.01" max="20" step="0.01" value="1">
-  <div class="value-display">Valeur: <span id="scaleUVYValue">1</span></div>
-</div>
+      <label>Échelle UV X:</label>
+      <input id="scaleUVX" type="range" min="0.01" max="20" step="0.01" value="1">
+      <div class="value-display">Valeur: <span id="scaleUVXValue">1</span></div>
+
+      <label>Échelle UV Y:</label>
+      <input id="scaleUVY" type="range" min="0.01" max="20" step="0.01" value="1">
+      <div class="value-display">Valeur: <span id="scaleUVYValue">1</span></div>
+    </div>
   </div>
-
-   
 
   <div class="right-controls">
     <h2>Configuration d'éclairage</h2>
@@ -305,29 +171,16 @@
   </div>
 
   <a-scene renderer="physicallyCorrectLights: true; exposure: 1.2;">
-    <!-- Lumières -->
     <a-entity id="ambientLight" light="type: ambient; color: #ffffff; intensity: 1"></a-entity>
     <a-entity id="mainLight" light="type: directional; color: #ffffff; intensity: 0.8; castShadow: true" position="1 2 1"></a-entity>
     <a-entity id="spotLight1" light="type: spot; color: #ffffff; intensity: 0.6; angle: 45" position="2 2 2"></a-entity>
     <a-entity id="spotLight2" light="type: spot; color: #ffffff; intensity: 0.6; angle: 45" position="-2 2 -2"></a-entity>
 
-    <!-- Modèle 3D -->
-    <a-entity 
-      id="model" 
-      position="0 1 0" 
-      scale="1 1 1"
-      shadow="cast: true; receive: true">
-    </a-entity>
+    <a-entity id="model" position="0 1 0" scale="1 1 1" shadow="cast: true; receive: true"></a-entity>
 
-    <!-- Caméra -->
     <a-entity id="cameraRig" position="0 1.6 3">
-  <a-entity 
-    camera 
-    look-controls="pointerLockEnabled: true"
-    wasd-controls="acceleration: 20"
-    position="0 0 0">
-  </a-entity>
-</a-entity>
+      <a-entity camera look-controls="pointerLockEnabled: true" wasd-controls="acceleration: 20" position="0 0 0"></a-entity>
+    </a-entity>
   </a-scene>
 
   <script>
@@ -345,18 +198,13 @@
       emissiveColor: document.getElementById('emissiveColor'),
       scaleX: document.getElementById('scaleX'),
       scaleY: document.getElementById('scaleY'),
-      scaleZ: document.getElementById('scaleZ'),
-      ambientIntensity: document.getElementById('ambientIntensity'),
-      ambientColor: document.getElementById('ambientColor'),
-      mainLightIntensity: document.getElementById('mainLightIntensity'),
-      mainLightColor: document.getElementById('mainLightColor'),
-      mainLightX: document.getElementById('mainLightX'),
-      mainLightY: document.getElementById('mainLightY'),
-      mainLightZ: document.getElementById('mainLightZ'),
-      spotIntensity: document.getElementById('spotIntensity'),
-      spotAngle: document.getElementById('spotAngle'),
-      spotColor: document.getElementById('spotColor')
+      scaleZ: document.getElementById('scaleZ')
     };
+
+    const textureSettings = new Map();
+    let currentTexture = null;
+    const originalUVArrays = new Map();
+    const materialCache = new Map();
 
     // Chargement du modèle
     elements.model.addEventListener('change', (event) => {
@@ -364,11 +212,20 @@
       if (file) {
         const modelUrl = URL.createObjectURL(file);
         modelEntity.setAttribute('gltf-model', modelUrl);
-        modelEntity.addEventListener('model-loaded', updateMeshList);
+        
+        // Réinitialiser les paramètres de texture
+        textureSettings.clear();
+        originalUVArrays.clear();
+        materialCache.clear();
+        
+        modelEntity.addEventListener('model-loaded', () => {
+          updateMeshList();
+          restoreTexturesForAllMeshes();
+        });
       }
     });
 
-    // Mise à jour de la liste des meshes
+   // Mise à jour de la liste des meshes
     function updateMeshList() {
       const model = modelEntity.getObject3D('mesh');
       elements.mesh.innerHTML = '<option value="">Sélectionner un mesh</option>';
@@ -385,14 +242,129 @@
       }
     }
 
-    // Affichage des noms des meshes
-    elements.showMesh.addEventListener('click', () => {
+    // Gestion des textures
+    function updateTextureSettings() {
+      if (!currentTexture) return;
+      
+      const selectedMeshName = elements.mesh.value;
       const model = modelEntity.getObject3D('mesh');
-      if (model) {
-        elements.debug.innerHTML = '';
-        model.traverse((node) => {
-                  if (node.isMesh) {
-            elements.debug.innerHTML += `Mesh trouvé: ${node.name}<br>`;
+      
+      if (!model) return;
+
+      // Récupérer les paramètres actuels
+      const settings = {
+        repeatX: parseFloat(document.getElementById('repeatX').value),
+        repeatY: parseFloat(document.getElementById('repeatY').value),
+        rotation: parseFloat(document.getElementById('rotation').value) * Math.PI / 180,
+        offsetX: parseFloat(document.getElementById('offsetX').value),
+        offsetY: parseFloat(document.getElementById('offsetY').value),
+        scaleUVX: parseFloat(document.getElementById('scaleUVX').value),
+        scaleUVY: parseFloat(document.getElementById('scaleUVY').value)
+      };
+
+      model.traverse((node) => {
+        if (node.isMesh && (selectedMeshName === '' || node.name === selectedMeshName)) {
+          // Stocker le matériau original
+          if (!materialCache.has(node.name)) {
+            materialCache.set(node.name, node.material.clone());
+          }
+
+          // Créer une nouvelle instance de texture pour ce mesh
+          const meshTexture = currentTexture.clone();
+          meshTexture.needsUpdate = true;
+
+          // Appliquer les paramètres
+          meshTexture.wrapS = settings.repeatX === 1 ? THREE.ClampToEdgeWrapping : THREE.RepeatWrapping;
+          meshTexture.wrapT = settings.repeatY === 1 ? THREE.ClampToEdgeWrapping : THREE.RepeatWrapping;
+          meshTexture.repeat.set(settings.repeatX, settings.repeatY);
+          meshTexture.rotation = settings.rotation;
+          meshTexture.offset.set(settings.offsetX, settings.offsetY);
+
+          // Sauvegarder les paramètres
+          textureSettings.set(node.name, {
+            texture: meshTexture,
+            settings: settings
+          });
+
+          // Appliquer au matériau
+          node.material = materialCache.get(node.name).clone();
+          node.material.map = meshTexture;
+          node.material.needsUpdate = true;
+
+          // Gérer les UVs
+          if (node.geometry.attributes.uv) {
+            if (!originalUVArrays.has(node.name)) {
+              const originalUVs = new Float32Array(node.geometry.attributes.uv.array);
+              originalUVArrays.set(node.name, originalUVs);
+            }
+            
+            const originalUVArray = originalUVArrays.get(node.name);
+            const uvArray = node.geometry.attributes.uv.array;
+            
+            for (let i = 0; i < uvArray.length; i += 2) {
+              uvArray[i] = originalUVArray[i] * settings.scaleUVX;
+              uvArray[i + 1] = originalUVArray[i + 1] * settings.scaleUVY;
+            }
+            node.geometry.attributes.uv.needsUpdate = true;
+          }
+        }
+      });
+    }
+
+    // Restaurer les textures pour tous les meshes
+    function restoreTexturesForAllMeshes() {
+      textureSettings.forEach((settings, meshName) => {
+        const mesh = getModelMeshByName(meshName);
+        if (mesh) {
+          mesh.material = materialCache.get(meshName).clone();
+          mesh.material.map = settings.texture;
+          mesh.material.needsUpdate = true;
+        }
+      });
+    }
+
+    // Fonction utilitaire pour récupérer un mesh par son nom
+    function getModelMeshByName(name) {
+      let targetMesh = null;
+      modelEntity.getObject3D('mesh').traverse((node) => {
+        if (node.isMesh && node.name === name) {
+          targetMesh = node;
+        }
+      });
+      return targetMesh;
+    }
+
+    // Gestion du chargement de texture
+    document.getElementById('textureInput').addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const textureUrl = URL.createObjectURL(file);
+      new THREE.TextureLoader().load(textureUrl, (texture) => {
+        currentTexture = texture;
+        updateTextureSettings();
+      });
+    });
+
+    // Event listeners pour les contrôles de texture
+    ['repeatX', 'repeatY', 'rotation', 'offsetX', 'offsetY', 'scaleUVX', 'scaleUVY'].forEach(id => {
+      document.getElementById(id).addEventListener('input', (e) => {
+        document.getElementById(`${id}Value`).textContent = e.target.value;
+        updateTextureSettings();
+      });
+    });
+
+    // Mise à jour des settings quand on change de mesh
+    elements.mesh.addEventListener('change', () => {
+      const selectedMeshName = elements.mesh.value;
+      const savedSettings = textureSettings.get(selectedMeshName);
+      
+      if (savedSettings) {
+        Object.entries(savedSettings.settings).forEach(([key, value]) => {
+          const element = document.getElementById(key);
+          if (element) {
+            element.value = key.includes('rotation') ? (value * 180 / Math.PI) : value;
+            document.getElementById(`${key}Value`).textContent = element.value;
           }
         });
       }
@@ -401,9 +373,11 @@
     // Gestion des matériaux
     function updateMaterialProperties() {
       const model = modelEntity.getObject3D('mesh');
+      const selectedMeshName = elements.mesh.value;
+
       if (model) {
         model.traverse((node) => {
-          if (node.isMesh) {
+          if (node.isMesh && (selectedMeshName === '' || node.name === selectedMeshName)) {
             node.material.roughness = parseFloat(elements.roughness.value);
             node.material.metalness = parseFloat(elements.metalness.value);
             node.material.emissiveIntensity = parseFloat(elements.emissiveIntensity.value);
@@ -415,107 +389,29 @@
     }
 
     // Event listeners pour les matériaux
-    elements.roughness.addEventListener('input', (e) => {
-      document.getElementById('roughnessValue').textContent = e.target.value;
-      updateMaterialProperties();
-    });
-
-    elements.metalness.addEventListener('input', (e) => {
-      document.getElementById('metalnessValue').textContent = e.target.value;
-      updateMaterialProperties();
-    });
-
-    elements.emissiveIntensity.addEventListener('input', (e) => {
-      document.getElementById('emissiveValue').textContent = e.target.value;
-      updateMaterialProperties();
+    ['roughness', 'metalness', 'emissiveIntensity'].forEach(id => {
+      elements[id].addEventListener('input', (e) => {
+        document.getElementById(`${id}Value`).textContent = e.target.value;
+        updateMaterialProperties();
+      });
     });
 
     elements.emissiveColor.addEventListener('input', updateMaterialProperties);
 
-    // Gestion des dimensions
-    function updateScale() {
-      const scaleX = parseFloat(elements.scaleX.value);
-      const scaleY = parseFloat(elements.scaleY.value);
-      const scaleZ = parseFloat(elements.scaleZ.value);
-      
-      modelEntity.object3D.scale.set(scaleX, scaleY, scaleZ);
-      document.getElementById('scaleXValue').textContent = scaleX.toFixed(1);
-      document.getElementById('scaleYValue').textContent = scaleY.toFixed(1);
-      document.getElementById('scaleZValue').textContent = scaleZ.toFixed(1);
-    }
-
-    elements.scaleX.addEventListener('input', updateScale);
-    elements.scaleY.addEventListener('input', updateScale);
-    elements.scaleZ.addEventListener('input', updateScale);
-
-    // Gestion de l'orientation
-    elements.orientation.addEventListener('change', () => {
-      const isVertical = elements.orientation.value === 'vertical';
-      modelEntity.object3D.rotation.set(
-        isVertical ? Math.PI / 2 : 0,
-        0,
-        0
-      );
+    // Affichage des noms des meshes
+    elements.showMesh.addEventListener('click', () => {
+      const model = modelEntity.getObject3D('mesh');
+      if (model) {
+        elements.debug.innerHTML = '';
+        model.traverse((node) => {
+          if (node.isMesh) {
+            elements.debug.innerHTML += `Mesh trouvé: ${node.name}<br>`;
+          }
+        });
+      }
     });
 
-    // Gestion des lumières
-    function updateLights() {
-      // Lumière ambiante
-      const ambientLight = document.getElementById('ambientLight');
-      ambientLight.setAttribute('light', {
-        intensity: parseFloat(elements.ambientIntensity.value),
-        color: elements.ambientColor.value
-      });
-      document.getElementById('ambientIntensityValue').textContent = elements.ambientIntensity.value;
-
-      // Lumière principale
-      const mainLight = document.getElementById('mainLight');
-      mainLight.setAttribute('light', {
-        intensity: parseFloat(elements.mainLightIntensity.value),
-        color: elements.mainLightColor.value
-      });
-      mainLight.object3D.position.set(
-        parseFloat(elements.mainLightX.value),
-        parseFloat(elements.mainLightY.value),
-        parseFloat(elements.mainLightZ.value)
-      );
-      document.getElementById('mainLightIntensityValue').textContent = elements.mainLightIntensity.value;
-      document.getElementById('mainLightXValue').textContent = elements.mainLightX.value;
-      document.getElementById('mainLightYValue').textContent = elements.mainLightY.value;
-      document.getElementById('mainLightZValue').textContent = elements.mainLightZ.value;
-
-      // Spots
-      const spotLight1 = document.getElementById('spotLight1');
-      const spotLight2 = document.getElementById('spotLight2');
-      const spotIntensity = parseFloat(elements.spotIntensity.value);
-      const spotAngle = parseFloat(elements.spotAngle.value);
-      const spotColor = elements.spotColor.value;
-
-      [spotLight1, spotLight2].forEach(light => {
-        light.setAttribute('light', {
-          intensity: spotIntensity,
-          angle: spotAngle,
-          color: spotColor
-        });
-      });
-      
-      document.getElementById('spotIntensityValue').textContent = spotIntensity;
-      document.getElementById('spotAngleValue').textContent = spotAngle;
-    }
-
-    // Event listeners pour les lumières
-    elements.ambientIntensity.addEventListener('input', updateLights);
-    elements.ambientColor.addEventListener('input', updateLights);
-    elements.mainLightIntensity.addEventListener('input', updateLights);
-    elements.mainLightColor.addEventListener('input', updateLights);
-    elements.mainLightX.addEventListener('input', updateLights);
-    elements.mainLightY.addEventListener('input', updateLights);
-    elements.mainLightZ.addEventListener('input', updateLights);
-    elements.spotIntensity.addEventListener('input', updateLights);
-    elements.spotAngle.addEventListener('input', updateLights);
-    elements.spotColor.addEventListener('input', updateLights);
-
-    // Gestion du zoom
+    // Navigation et contrôles de caméra
     const cameraRig = document.getElementById('cameraRig');
     cameraRig.addEventListener('wheel', (event) => {
       event.preventDefault();
@@ -525,145 +421,21 @@
       const currentPosition = camera.position.z;
       const newPosition = currentPosition + (zoomDirection * zoomSpeed);
       
-      // Limiter le zoom entre 0.5 et 10
       if (newPosition >= 0.5 && newPosition <= 10) {
         camera.position.z = newPosition;
       }
     });
 
-    // Initialisation
-    updateLights();
-// Gestion des textures
-let currentTexture = null;
-let originalUVArrays = new Map();
-
-// Application de la texture
-function applyTexture() {
-  const model = modelEntity.getObject3D('mesh');
-  const selectedMeshName = elements.mesh.value;
-
-  if (model && currentTexture) {
-    model.traverse((node) => {
-      if (node.isMesh && (selectedMeshName === '' || node.name === selectedMeshName)) {
-        if (!node.material.map) {
-          node.material = new THREE.MeshStandardMaterial();
-        }
-        node.material.map = currentTexture;
-        node.material.needsUpdate = true;
+    // Double-click pour le pointeur
+    document.addEventListener('dblclick', () => {
+      const scene = document.querySelector('a-scene');
+      if (document.pointerLockElement) {
+        document.exitPointerLock();
+      } else {
+        scene.canvas.requestPointerLock();
       }
     });
-  }
-}
 
-// Chargement de la texture
-document.getElementById('textureInput').addEventListener('change', (event) => {
-  const file = event.target.files[0];
-  if (file) {
-    const textureUrl = URL.createObjectURL(file);
-    const loader = new THREE.TextureLoader();
-    
-    loader.load(textureUrl, (texture) => {
-      currentTexture = texture;
-      // Utiliser ClampToEdgeWrapping par défaut
-      currentTexture.wrapS = THREE.ClampToEdgeWrapping;
-      currentTexture.wrapT = THREE.ClampToEdgeWrapping;
-      updateTextureSettings();
-      applyTexture();
-    });
-  }
-});
-
-// Mise à jour des paramètres de texture
-function updateTextureSettings() {
-  if (currentTexture) {
-    const repeatXValue = parseFloat(document.getElementById('repeatX').value);
-    const repeatYValue = parseFloat(document.getElementById('repeatY').value);
-    
-    if (repeatXValue === 1 && repeatYValue === 1) {
-      currentTexture.wrapS = THREE.ClampToEdgeWrapping;
-      currentTexture.wrapT = THREE.ClampToEdgeWrapping;
-      currentTexture.repeat.set(1, 1);
-    } else {
-      currentTexture.wrapS = THREE.RepeatWrapping;
-      currentTexture.wrapT = THREE.RepeatWrapping;
-      currentTexture.repeat.set(repeatXValue, repeatYValue);
-    }
-
-    currentTexture.rotation = parseFloat(document.getElementById('rotation').value) * Math.PI / 180;
-    currentTexture.offset.set(
-      parseFloat(document.getElementById('offsetX').value),
-      parseFloat(document.getElementById('offsetY').value)
-    );
-    
-    const model = modelEntity.getObject3D('mesh');
-    if (model) {
-      model.traverse((node) => {
-        if (node.isMesh) {
-          const scaleX = parseFloat(document.getElementById('scaleUVX').value);
-          const scaleY = parseFloat(document.getElementById('scaleUVY').value);
-          if (node.geometry.attributes.uv) {
-            const uvArray = node.geometry.attributes.uv.array;
-            const originalUVArray = originalUVArrays.get(node.name) || uvArray;
-            
-            for (let i = 0; i < uvArray.length; i += 2) {
-              uvArray[i] = originalUVArray[i] * scaleX;
-              uvArray[i + 1] = originalUVArray[i + 1] * scaleY;
-            }
-            node.geometry.attributes.uv.needsUpdate = true;
-          }
-        }
-      });
-    }
-    
-    currentTexture.needsUpdate = true;
-    applyTexture();
-  }
-}
-
-// Event listeners pour les contrôles de texture
-['repeatX', 'repeatY', 'rotation', 'offsetX', 'offsetY', 'scaleUVX', 'scaleUVY'].forEach(id => {
-  document.getElementById(id).addEventListener('input', (e) => {
-    document.getElementById(`${id}Value`).textContent = e.target.value;
-    updateTextureSettings();
-  });
-});
-
-// Navigation avec clavier
-document.addEventListener('keydown', (event) => {
-  const camera = document.querySelector('[camera]').object3D;
-  const speed = 0.1;
-  
-  switch(event.key) {
-    case 'ArrowUp':
-      camera.position.z -= speed;
-      break;
-    case 'ArrowDown':
-      camera.position.z += speed;
-      break;
-    case 'ArrowLeft':
-      camera.position.x -= speed;
-      break;
-    case 'ArrowRight':
-      camera.position.x += speed;
-      break;
-    case 'PageUp':
-      camera.position.y += speed;
-      break;
-    case 'PageDown':
-      camera.position.y -= speed;
-      break;
-  }
-});
-
-// Double-click pour entrer/sortir du mode pointeur verrouillé
-document.addEventListener('dblclick', () => {
-  const scene = document.querySelector('a-scene');
-  if (document.pointerLockElement) {
-    document.exitPointerLock();
-  } else {
-    scene.canvas.requestPointerLock();
-  }
-});
-    
   </script>
 </body>
+</html>
