@@ -652,12 +652,13 @@ function updateTextureSettings() {
 }
 
 // Event listeners pour les contrôles de texture
-['repeatX', 'repeatY', 'rotation', 'offsetX', 'offsetY', 'scaleUVX', 'scaleUVY'].forEach(id => {
-  document.getElementById(id).addEventListener('input', (e) => {
-    document.getElementById(`${id}Value`).textContent = e.target.value;
-    updateTextureSettings();
+ ['repeatX', 'repeatY', 'rotation', 'offsetX', 'offsetY', 'scaleUVX', 'scaleUVY'].forEach(id => {
+    document.getElementById(`${id}Value`).textContent = document.getElementById(id).value;
   });
-});
+
+  currentTexture = null;
+  selectedMeshMaterial = null;
+}
 // Navigation avec clavier
 document.addEventListener('keydown', (event) => {
   const camera = document.querySelector('[camera]').object3D;
@@ -686,14 +687,7 @@ document.addEventListener('keydown', (event) => {
 });
 
 
-    // Mettre à jour l'affichage des valeurs
-  ['repeatX', 'repeatY', 'rotation', 'offsetX', 'offsetY', 'scaleUVX', 'scaleUVY'].forEach(id => {
-    document.getElementById(`${id}Value`).textContent = document.getElementById(id).value;
-  });
 
-  currentTexture = null;
-  selectedMeshMaterial = null;
-}
     
   </script>
 </body>
