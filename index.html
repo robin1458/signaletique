@@ -536,6 +536,8 @@
 // Gestion des textures
 let currentTexture = null;
 let originalUVArrays = new Map();
+let selectedMeshMaterial = null;
+let originalMaterials = new Map();
 
 // Application de la texture
 function applyTexture() {
@@ -544,12 +546,31 @@ function applyTexture() {
 
   if (model && currentTexture) {
     model.traverse((node) => {
-      if (node.isMesh && (selectedMeshName === '' || node.name === selectedMeshName)) {
-        if (!node.material.map) {
-          node.material = new THREE.MeshStandardMaterial();
+      if (node.isMesh) {
+        // Sauvegarder le matériau original s'il n'est pas déjà sauvegardé
+        if (!originalMaterials.has(node.name)) {
+          originalMaterials.set(node.name, node.material.clone());
         }
-        node.material.map = currentTexture;
-        node.material.needsUpdate = true;
+
+        // N'appliquer la texture que sur le mesh sélectionné
+        if (node.name === selectedMeshName) {
+          // Créer un nouveau matériau si nécessaire
+          if (!node.material.map) {
+            node.material = new THREE.MeshStandardMaterial({
+              ...node.material,
+              map: currentTexture
+            });
+          } else {
+            node.material.map = currentTexture;
+          }
+          selectedMeshMaterial = node.material;
+          node.material.needsUpdate = true;
+
+          // Sauvegarder les UVs originaux
+          if (!originalUVArrays.has(node.name) && node.geometry.attributes.uv) {
+            originalUVArrays.set(node.name, Float32Array.from(node.geometry.attributes.uv.array));
+          }
+        }
       }
     });
   }
@@ -559,51 +580,57 @@ function applyTexture() {
 document.getElementById('textureInput').addEventListener('change', (event) => {
   const file = event.target.files[0];
   if (file) {
+    // Réinitialiser la texture précédente si elle existe
+    if (currentTexture) {
+      resetTexture();
+    }
+
     const textureUrl = URL.createObjectURL(file);
     const loader = new THREE.TextureLoader();
     
     loader.load(textureUrl, (texture) => {
       currentTexture = texture;
-      // Utiliser ClampToEdgeWrapping par défaut
       currentTexture.wrapS = THREE.ClampToEdgeWrapping;
       currentTexture.wrapT = THREE.ClampToEdgeWrapping;
-      updateTextureSettings();
       applyTexture();
+      updateTextureSettings();
     });
   }
 });
 
 // Mise à jour des paramètres de texture
 function updateTextureSettings() {
-  if (currentTexture) {
+  if (currentTexture && selectedMeshMaterial) {
     const repeatXValue = parseFloat(document.getElementById('repeatX').value);
     const repeatYValue = parseFloat(document.getElementById('repeatY').value);
     
     if (repeatXValue === 1 && repeatYValue === 1) {
       currentTexture.wrapS = THREE.ClampToEdgeWrapping;
       currentTexture.wrapT = THREE.ClampToEdgeWrapping;
-      currentTexture.repeat.set(1, 1);
     } else {
       currentTexture.wrapS = THREE.RepeatWrapping;
       currentTexture.wrapT = THREE.RepeatWrapping;
-      currentTexture.repeat.set(repeatXValue, repeatYValue);
     }
-
+    
+    currentTexture.repeat.set(repeatXValue, repeatYValue);
     currentTexture.rotation = parseFloat(document.getElementById('rotation').value) * Math.PI / 180;
     currentTexture.offset.set(
       parseFloat(document.getElementById('offsetX').value),
       parseFloat(document.getElementById('offsetY').value)
     );
-    
+
     const model = modelEntity.getObject3D('mesh');
+    const selectedMeshName = elements.mesh.value;
+    
     if (model) {
       model.traverse((node) => {
-        if (node.isMesh) {
+        if (node.isMesh && node.name === selectedMeshName) {
           const scaleX = parseFloat(document.getElementById('scaleUVX').value);
           const scaleY = parseFloat(document.getElementById('scaleUVY').value);
-          if (node.geometry.attributes.uv) {
+          
+          if (node.geometry.attributes.uv && originalUVArrays.has(node.name)) {
+            const originalUVArray = originalUVArrays.get(node.name);
             const uvArray = node.geometry.attributes.uv.array;
-            const originalUVArray = originalUVArrays.get(node.name) || uvArray;
             
             for (let i = 0; i < uvArray.length; i += 2) {
               uvArray[i] = originalUVArray[i] * scaleX;
@@ -616,7 +643,7 @@ function updateTextureSettings() {
     }
     
     currentTexture.needsUpdate = true;
-    applyTexture();
+    selectedMeshMaterial.needsUpdate = true;
   }
 }
 
@@ -627,7 +654,6 @@ function updateTextureSettings() {
     updateTextureSettings();
   });
 });
-
 // Navigation avec clavier
 document.addEventListener('keydown', (event) => {
   const camera = document.querySelector('[camera]').object3D;
@@ -655,15 +681,15 @@ document.addEventListener('keydown', (event) => {
   }
 });
 
-// Double-click pour entrer/sortir du mode pointeur verrouillé
-document.addEventListener('dblclick', () => {
-  const scene = document.querySelector('a-scene');
-  if (document.pointerLockElement) {
-    document.exitPointerLock();
-  } else {
-    scene.canvas.requestPointerLock();
-  }
-});
+
+    // Mettre à jour l'affichage des valeurs
+  ['repeatX', 'repeatY', 'rotation', 'offsetX', 'offsetY', 'scaleUVX', 'scaleUVY'].forEach(id => {
+    document.getElementById(`${id}Value`).textContent = document.getElementById(id).value;
+  });
+
+  currentTexture = null;
+  selectedMeshMaterial = null;
+}
     
   </script>
 </body>
