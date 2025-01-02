@@ -49,11 +49,11 @@
     <div class="control-section">
       <h3>Matériaux</h3>
       <label for="roughness">Rugosité :</label>
-      <input id="roughness" type="range" min="0" max="1" step="0.01" value="0.24">
+      <input id="roughness" type="range" min="0" max="1" step="0.01" value="0.5">
       <div class="value-display">Valeur: <span id="roughnessValue">0.5</span></div>
 
       <label for="metalness">Métallicité :</label>
-      <input id="metalness" type="range" min="0" max="1" step="0.01" value="0.11">
+      <input id="metalness" type="range" min="0" max="1" step="0.01" value="0.5">
       <div class="value-display">Valeur: <span id="metalnessValue">0.5</span></div>
 
       <label for="emissiveIntensity">Intensité émissive :</label>
@@ -73,15 +73,15 @@
       </select>
 
       <label>Échelle X :</label>
-      <input id="scaleX" type="range" min="0.1" max="5" step="0.1" value="5">
+      <input id="scaleX" type="range" min="0.1" max="5" step="0.1" value="1">
       <div class="value-display">Valeur: <span id="scaleXValue">1</span></div>
 
       <label>Échelle Y :</label>
-      <input id="scaleY" type="range" min="0.1" max="5" step="0.1" value="5">
+      <input id="scaleY" type="range" min="0.1" max="5" step="0.1" value="1">
       <div class="value-display">Valeur: <span id="scaleYValue">1</span></div>
 
       <label>Échelle Z :</label>
-      <input id="scaleZ" type="range" min="0.1" max="5" step="0.1" value="5">
+      <input id="scaleZ" type="range" min="0.1" max="5" step="0.1" value="1">
       <div class="value-display">Valeur: <span id="scaleZValue">1</span></div>
     </div>
 
@@ -99,23 +99,23 @@
       <div class="value-display">Valeur: <span id="repeatYValue">1</span></div>
 
       <label>Rotation (degrés):</label>
-      <input id="rotation" type="range" min="0" max="360" step="1" value="90">
+      <input id="rotation" type="range" min="0" max="360" step="1" value="0">
       <div class="value-display">Valeur: <span id="rotationValue">0</span></div>
 
       <label>Offset X:</label>
-      <input id="offsetX" type="range" min="-1" max="1" step="0.01" value="0.51">
+      <input id="offsetX" type="range" min="-1" max="1" step="0.01" value="0">
       <div class="value-display">Valeur: <span id="offsetXValue">0</span></div>
 
       <label>Offset Y:</label>
-      <input id="offsetY" type="range" min="-1" max="1" step="0.01" value="0.49">
+      <input id="offsetY" type="range" min="-1" max="1" step="0.01" value="0">
       <div class="value-display">Valeur: <span id="offsetYValue">0</span></div>
 
       <label>Échelle UV X:</label>
-      <input id="scaleUVX" type="range" min="0.01" max="20" step="0.01" value="14.87">
+      <input id="scaleUVX" type="range" min="0.01" max="20" step="0.01" value="1">
       <div class="value-display">Valeur: <span id="scaleUVXValue">1</span></div>
 
       <label>Échelle UV Y:</label>
-      <input id="scaleUVY" type="range" min="0.01" max="20" step="0.01" value="1.43">
+      <input id="scaleUVY" type="range" min="0.01" max="20" step="0.01" value="1">
       <div class="value-display">Valeur: <span id="scaleUVYValue">1</span></div>
     </div>
   </div>
@@ -126,7 +126,7 @@
     <div class="control-section">
       <h3>Éclairage Ambiant</h3>
       <label for="ambientIntensity">Intensité :</label>
-      <input id="ambientIntensity" type="range" min="0" max="2" step="0.1" value="2">
+      <input id="ambientIntensity" type="range" min="0" max="2" step="0.1" value="1">
       <div class="value-display">Valeur: <span id="ambientIntensityValue">1</span></div>
 
       <label for="ambientColor">Couleur :</label>
@@ -136,33 +136,33 @@
     <div class="control-section">
       <h3>Éclairage Principal</h3>
       <label for="mainLightIntensity">Intensité :</label>
-      <input id="mainLightIntensity" type="range" min="0" max="2" step="0.1" value="1.2">
+      <input id="mainLightIntensity" type="range" min="0" max="2" step="0.1" value="0.8">
       <div class="value-display">Valeur: <span id="mainLightIntensityValue">0.8</span></div>
 
       <label for="mainLightColor">Couleur :</label>
       <input id="mainLightColor" type="color" value="#ffffff">
 
       <label for="mainLightX">Position X :</label>
-      <input id="mainLightX" type="range" min="-5" max="5" step="0.1" value="-1.4">
+      <input id="mainLightX" type="range" min="-5" max="5" step="0.1" value="1">
       <div class="value-display">Valeur: <span id="mainLightXValue">1</span></div>
 
       <label for="mainLightY">Position Y :</label>
-      <input id="mainLightY" type="range" min="-5" max="5" step="0.1" value="1">
+      <input id="mainLightY" type="range" min="-5" max="5" step="0.1" value="2">
       <div class="value-display">Valeur: <span id="mainLightYValue">2</span></div>
 
       <label for="mainLightZ">Position Z :</label>
-      <input id="mainLightZ" type="range" min="-5" max="5" step="0.1" value="5">
+      <input id="mainLightZ" type="range" min="-5" max="5" step="0.1" value="1">
       <div class="value-display">Valeur: <span id="mainLightZValue">1</span></div>
     </div>
 
     <div class="control-section">
       <h3>Spots d'Accentuation</h3>
       <label for="spotIntensity">Intensité :</label>
-      <input id="spotIntensity" type="range" min="0" max="2" step="0.1" value="2">
+      <input id="spotIntensity" type="range" min="0" max="2" step="0.1" value="0.6">
       <div class="value-display">Valeur: <span id="spotIntensityValue">0.6</span></div>
 
       <label for="spotAngle">Angle :</label>
-      <input id="spotAngle" type="range" min="0" max="90" step="1" value="90">
+      <input id="spotAngle" type="range" min="0" max="90" step="1" value="45">
       <div class="value-display">Valeur: <span id="spotAngleValue">45</span></div>
 
       <label for="spotColor">Couleur :</label>
